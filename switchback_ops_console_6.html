@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Switchback Ops Console — DoorDash Interview Prep</title>
+<style>
+  :root{
+    --bg:#0B1120; --panel:#111A2E; --panel2:#16213B; --card:#1A2540;
+    --border:#28345A; --border-soft:#1F2A4A;
+    --tx:#E9EDF7; --tx2:#9FACC9; --tx3:#6C7996;
+    --amber:#F5A623; --teal:#2FD9C4; --red:#F1554C; --violet:#9C90F0; --blue:#5B9DF0;
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(92,120,220,0.10), transparent),
+      radial-gradient(ellipse 700px 400px at 100% 0%, rgba(245,166,35,0.06), transparent),
+      var(--bg);
+    color:var(--tx); font-family:var(--sans); min-height:100vh; padding-bottom:80px;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:rgba(245,166,35,0.3);}
+
+  /* ---------- HEADER ---------- */
+  header{
+    padding:28px 32px 20px; border-bottom:1px solid var(--border-soft);
+    display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:16px;
+  }
+  .brand-eyebrow{
+    font-family:var(--mono); font-size:11px; letter-spacing:0.16em; text-transform:uppercase;
+    color:var(--amber); margin-bottom:6px; display:flex; align-items:center; gap:8px;
+  }
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--teal); box-shadow:0 0 8px var(--teal); animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;} 50%{opacity:0.4;}}
+  h1{font-size:26px; font-weight:700; letter-spacing:-0.01em;}
+  .sub{color:var(--tx2); font-size:13.5px; margin-top:4px;}
+  .stat-strip{display:flex; gap:22px; font-family:var(--mono);}
+  .stat{text-align:right;}
+  .stat b{font-size:20px; display:block; color:var(--tx);}
+  .stat span{font-size:10.5px; color:var(--tx3); text-transform:uppercase; letter-spacing:0.08em;}
+
+  /* ---------- ROUTING DIAGRAM (signature element) ---------- */
+  .routing{
+    margin:24px 32px; padding:22px 24px; background:var(--panel);
+    border:1px solid var(--border-soft); border-radius:10px;
+  }
+  .routing-label{font-family:var(--mono); font-size:11px; color:var(--tx3); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:14px;}
+  .route-row{display:flex; align-items:center; gap:0; overflow-x:auto; padding-bottom:6px;}
+  .route-node{
+    flex:0 0 auto; padding:10px 16px; border:1px solid var(--border); border-radius:7px;
+    background:var(--card); font-size:13px; white-space:nowrap; cursor:pointer;
+    transition:all .15s ease; color:var(--tx2);
+  }
+  .route-node:hover{border-color:var(--violet); color:var(--tx);}
+  .route-node.active{background:rgba(156,144,240,0.15); border-color:var(--violet); color:var(--tx); box-shadow:0 0 0 1px var(--violet) inset;}
+  .route-arrow{flex:0 0 auto; color:var(--tx3); padding:0 10px; font-family:var(--mono);}
+  .route-hint{margin-top:12px; font-size:12.5px; color:var(--tx3);}
+  .route-hint b{color:var(--amber);}
+
+  /* ---------- TABS ---------- */
+  .tabs{
+    display:flex; gap:4px; margin:0 32px; padding:6px; background:var(--panel);
+    border:1px solid var(--border-soft); border-radius:10px; overflow-x:auto;
+  }
+  .tab{
+    flex:0 0 auto; padding:9px 16px; border-radius:7px; font-size:13px; font-weight:600;
+    color:var(--tx2); cursor:pointer; white-space:nowrap; transition:all .15s ease;
+  }
+  .tab:hover{color:var(--tx);}
+  .tab.active{background:var(--card); color:var(--tx); box-shadow:0 0 0 1px var(--border) inset;}
+  .panel{display:none; margin:24px 32px;}
+  .panel.active{display:block;}
+
+  /* ---------- CASE FILTER BAR ---------- */
+  .filter-bar{display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap; align-items:center;}
+  #search{
+    flex:1; min-width:220px; background:var(--panel); border:1px solid var(--border-soft);
+    border-radius:8px; padding:10px 14px; color:var(--tx); font-size:13.5px; font-family:var(--sans);
+  }
+  #search:focus{outline:none; border-color:var(--violet);}
+  .chip{
+    padding:8px 13px; border-radius:20px; border:1px solid var(--border-soft); background:var(--panel);
+    font-size:12px; color:var(--tx2); cursor:pointer; white-space:nowrap; font-family:var(--mono);
+  }
+  .chip.on{background:rgba(47,217,196,0.12); border-color:var(--teal); color:var(--teal);}
+  .progress-wrap{display:flex; align-items:center; gap:8px; font-family:var(--mono); font-size:11px; color:var(--tx3);}
+  .progress-bar{width:90px; height:5px; background:var(--card); border-radius:4px; overflow:hidden;}
+  .progress-fill{height:100%; background:var(--teal); width:0%; transition:width .3s ease;}
+
+  /* ---------- CASE CARDS ---------- */
+  .case-card{
+    background:var(--panel); border:1px solid var(--border-soft); border-radius:10px;
+    margin-bottom:12px; overflow:hidden; transition:border-color .15s ease;
+  }
+  .case-card.done{border-left:3px solid var(--teal);}
+  .case-head{
+    padding:16px 18px; display:flex; align-items:center; gap:14px; cursor:pointer;
+  }
+  .case-num{
+    font-family:var(--mono); font-size:11px; color:var(--bg); background:var(--tx3);
+    width:26px; height:26px; border-radius:6px; display:flex; align-items:center; justify-content:center;
+    flex:0 0 auto; font-weight:700;
+  }
+  .method-tag{
+    font-family:var(--mono); font-size:10px; padding:3px 8px; border-radius:5px; text-transform:uppercase;
+    letter-spacing:0.04em; flex:0 0 auto;
+  }
+  .m-switchback{background:rgba(156,144,240,0.15); color:var(--violet);}
+  .m-cluster{background:rgba(47,217,196,0.15); color:var(--teal);}
+  .m-ab{background:rgba(91,157,240,0.15); color:var(--blue);}
+  .m-did{background:rgba(245,166,35,0.15); color:var(--amber);}
+  .m-zerosum{background:rgba(241,85,76,0.15); color:var(--red);}
+  .case-title{font-size:14.5px; font-weight:600; flex:1;}
+  .case-check{width:20px;height:20px;border:1.5px solid var(--border); border-radius:5px; flex:0 0 auto; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:12px;}
+  .case-card.done .case-check{background:var(--teal); border-color:var(--teal); color:var(--bg);}
+  .chevron{color:var(--tx3); transition:transform .2s ease; flex:0 0 auto;}
+  .case-card.open .chevron{transform:rotate(90deg);}
+  .case-body{max-height:0; overflow:hidden; transition:max-height .25s ease;}
+  .case-card.open .case-body{max-height:2400px;}
+  .case-inner{padding:0 18px 20px 58px; font-size:13.5px; line-height:1.6; color:var(--tx2);}
+
+  .mini-route{display:flex; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:14px;}
+  .mini-node{font-family:var(--mono); font-size:11px; padding:4px 9px; background:var(--card); border:1px solid var(--border-soft); border-radius:5px; color:var(--tx2);}
+  .mini-arrow{color:var(--tx3); font-size:11px;}
+
+  .sec-label{font-family:var(--mono); font-size:10.5px; text-transform:uppercase; letter-spacing:0.09em; color:var(--tx3); margin:14px 0 6px;}
+  .sec-label:first-child{margin-top:0;}
+  .hyp-box{background:rgba(245,166,35,0.06); border-left:2px solid var(--amber); padding:10px 12px; border-radius:4px; color:var(--tx); font-style:italic;}
+  .why-box{background:rgba(156,144,240,0.07); border-left:2px solid var(--violet); padding:10px 12px; border-radius:4px; color:var(--tx2); font-size:12.5px; line-height:1.6;}
+
+  .metric-grid{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-top:4px;}
+  .metric-col{background:var(--card); border-radius:6px; padding:10px 12px; border-top:2px solid var(--border);}
+  .metric-col.p{border-top-color:var(--teal);}
+  .metric-col.g{border-top-color:var(--red);}
+  .metric-col.s{border-top-color:var(--blue);}
+  .metric-col h4{font-size:10.5px; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:6px; color:var(--tx3);}
+  .metric-col p{font-size:12.5px; color:var(--tx2); line-height:1.5;}
+
+  .formula-line{font-family:var(--mono); font-size:12.5px; background:var(--card); padding:8px 12px; border-radius:5px; margin-top:4px; color:var(--teal); overflow-x:auto; white-space:pre;}
+  .edge-note{background:rgba(241,85,76,0.06); border-left:2px solid var(--red); padding:9px 12px; border-radius:4px; margin-top:4px; font-size:12.5px;}
+
+  @media (max-width:960px){ .metric-grid{grid-template-columns:1fr;} }
+
+  /* ---------- QUIZ MODE ---------- */
+  .quiz-card{background:var(--panel); border:1px solid var(--border-soft); border-radius:10px; padding:22px; margin-bottom:14px;}
+  .quiz-q{font-size:15px; font-weight:600; margin-bottom:6px;}
+  .quiz-meta{font-family:var(--mono); font-size:11px; color:var(--tx3); margin-bottom:14px;}
+  .reveal-btn{
+    background:var(--card); border:1px solid var(--border); color:var(--tx2); font-family:var(--mono);
+    font-size:12px; padding:9px 16px; border-radius:6px; cursor:pointer; text-transform:uppercase; letter-spacing:0.05em;
+  }
+  .reveal-btn:hover{border-color:var(--violet); color:var(--tx);}
+  .quiz-answer{display:none; margin-top:16px; padding-top:16px; border-top:1px dashed var(--border-soft);}
+  .quiz-card.revealed .quiz-answer{display:block;}
+  .quiz-card.revealed .reveal-btn{display:none;}
+
+  /* ---------- GENERIC CONTENT (toolkit, SRM, CUPED, etc) ---------- */
+  .content-block{background:var(--panel); border:1px solid var(--border-soft); border-radius:10px; padding:22px 24px; margin-bottom:16px;}
+  .content-block h3{font-size:15.5px; margin-bottom:10px; display:flex; align-items:center; gap:8px;}
+  .content-block h3 .tag{font-family:var(--mono); font-size:10px; background:var(--card); color:var(--violet); padding:3px 8px; border-radius:5px;}
+  .content-block p{font-size:13.5px; color:var(--tx2); line-height:1.65; margin-bottom:8px;}
+  .content-block .formula-line{margin-bottom:10px;}
+  .two-col{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media (max-width:800px){.two-col{grid-template-columns:1fr;}}
+  .result-pill{display:inline-block; font-family:var(--mono); font-size:12px; background:rgba(47,217,196,0.12); color:var(--teal); padding:4px 10px; border-radius:5px; margin:4px 4px 0 0;}
+
+  ul.clean{list-style:none;}
+  ul.clean li{font-size:13.5px; color:var(--tx2); padding:6px 0 6px 20px; position:relative; line-height:1.55;}
+  ul.clean li:before{content:"→"; position:absolute; left:0; color:var(--violet);}
+
+  .flow-diagram{display:flex; flex-direction:column; gap:8px; margin:16px 0;}
+  .flow-step{display:flex; gap:12px; align-items:flex-start;}
+  .flow-num{font-family:var(--mono); font-size:11px; color:var(--bg); background:var(--violet); width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex:0 0 auto; font-weight:700; margin-top:1px;}
+  .flow-step p{margin:0; font-size:13px;}
+
+  .roll-steps{display:flex; flex-direction:column; gap:0; margin:14px 0;}
+  .roll-step{display:flex; align-items:center; gap:14px; padding:10px 0; border-left:2px solid var(--border); padding-left:18px; position:relative;}
+  .roll-step:before{content:""; position:absolute; left:-6px; top:18px; width:10px; height:10px; border-radius:50%; background:var(--amber); border:2px solid var(--bg);}
+  .roll-step b{font-size:13px; min-width:170px;}
+  .roll-step span{font-size:12.5px; color:var(--tx3);}
+
+  footer{text-align:center; padding:30px; color:var(--tx3); font-size:12px; font-family:var(--mono);}
+
+  /* ---------- DECISION FLOWCHART ---------- */
+  .fc-wrap{background:var(--panel); border:1px solid var(--border-soft); border-radius:10px; padding:20px; overflow-x:auto;}
+  .fc-diamond{fill:rgba(156,144,240,0.08); stroke:var(--violet); stroke-width:1.5;}
+  .fc-box{fill:var(--card); stroke:var(--border); stroke-width:1.5;}
+  .fc-outcome-blue{fill:rgba(91,157,240,0.14); stroke:var(--blue); stroke-width:1.5;}
+  .fc-outcome-teal{fill:rgba(47,217,196,0.14); stroke:var(--teal); stroke-width:1.5;}
+  .fc-outcome-amber{fill:rgba(245,166,35,0.14); stroke:var(--amber); stroke-width:1.5;}
+  .fc-outcome-side{fill:rgba(241,85,76,0.08); stroke:var(--red); stroke-width:1.5;}
+  .fc-line{stroke:#6C7996; stroke-width:1.5; fill:none;}
+  .fc-text{font-family:var(--sans); fill:var(--tx); font-size:12.5px; text-anchor:middle;}
+  .fc-text-sm{font-family:var(--mono); fill:var(--tx2); font-size:10.5px; text-anchor:middle;}
+  .fc-branch-label{font-family:var(--mono); fill:var(--amber); font-size:11px; font-weight:700; text-anchor:middle;}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="brand-eyebrow"><span class="dot"></span> LIVE PREP CONSOLE</div>
+    <h1>Switchback Ops Console</h1>
+    <div class="sub">Marketplace experimentation reference — 12 cases, framework, formulas, evaluation mechanics</div>
+  </div>
+  <div class="stat-strip">
+    <div class="stat"><b>12</b><span>Cases</span></div>
+    <div class="stat"><b>8</b><span>Formulas</span></div>
+    <div class="stat"><b id="doneCount">0</b><span>Reviewed</span></div>
+  </div>
+</header>
+
+<div class="routing">
+  <div class="routing-label">// Decision routing — click a stage to filter cases below by classification</div>
+  <div class="route-row">
+    <div class="route-node" data-filter="all">All Cases</div>
+    <div class="route-arrow">→</div>
+    <div class="route-node" data-filter="none">No Interference</div>
+    <div class="route-arrow">→</div>
+    <div class="route-node" data-filter="spatial-short">Spatial, Short</div>
+    <div class="route-arrow">→</div>
+    <div class="route-node" data-filter="spatial-visible">Spatial, Visible</div>
+    <div class="route-arrow">→</div>
+    <div class="route-node" data-filter="cluster">Cluster (non-time)</div>
+    <div class="route-arrow">→</div>
+    <div class="route-node" data-filter="mobile">Mobile / Leaks</div>
+    <div class="route-arrow">→</div>
+    <div class="route-node" data-filter="temporal">Long Timescale</div>
+    <div class="route-arrow">→</div>
+    <div class="route-node" data-filter="systemic">Systemic</div>
+    <div class="route-arrow">→</div>
+    <div class="route-node" data-filter="zerosum">Zero-Sum Slots</div>
+  </div>
+  <div class="route-hint">Rule of thumb: <b>many contemporaneous units, short reach → Switchback</b>. <b>Few units, long reach → DiD / Synthetic Control</b>. <b>No shared resource → Standard A/B</b>.</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" data-tab="cases">Case Studies</div>
+  <div class="tab" data-tab="flowchart">Decision Flowchart</div>
+  <div class="tab" data-tab="quiz">Quiz Mode</div>
+  <div class="tab" data-tab="formulas">Formula Toolkit</div>
+  <div class="tab" data-tab="sampledata">Sample Size, Duration & Data</div>
+  <div class="tab" data-tab="srm">SRM & CUPED</div>
+  <div class="tab" data-tab="eval">Evaluation Mechanics</div>
+  <div class="tab" data-tab="rollout">Launch & Rollout</div>
+  <div class="tab" data-tab="edge">Edge Cases</div>
+</div>
+
+<!-- ===================== CASES PANEL ===================== -->
+<div class="panel active" id="panel-cases">
+  <div class="filter-bar">
+    <input id="search" type="text" placeholder="Search cases — try 'promo', 'ratio', 'dispatch'...">
+    <div class="chip" data-method="all">All methods</div>
+    <div class="chip" data-method="switchback">Switchback</div>
+    <div class="chip" data-method="cluster">Cluster-Randomized</div>
+    <div class="chip" data-method="ab">Standard A/B</div>
+    <div class="chip" data-method="did">DiD / Synthetic</div>
+    <div class="chip" data-method="zerosum">Zero-sum</div>
+    <div class="progress-wrap"><div class="progress-bar"><div class="progress-fill" id="progFill"></div></div><span id="progText">0/12</span></div>
+  </div>
+  <div id="caseList"></div>
+</div>
+
+<!-- ===================== DECISION FLOWCHART ===================== -->
+<div class="panel" id="panel-flowchart">
+  <div class="content-block">
+    <h3>How to use this <span class="tag">walk it top to bottom, every case</span></h3>
+    <p>Four questions, in order: is there interference at all → what's causing it and can it move → does it resolve fast or need time to mature → which design follows. Every one of the 12 cases traces a specific path through this same chart.</p>
+  </div>
+  <div class="fc-wrap">
+    <svg width="100%" viewBox="0 0 950 900" role="img">
+      <title>Decision flowchart for choosing an experiment design</title>
+      <desc>A flowchart starting from whether treatment touches a shared resource, branching to standard A/B if not, otherwise identifying the cause of interference, checking whether that resource can physically move (leading to zone versus whole-market sizing), then checking whether the effect is temporal, leading to either a switchback design or a single fixed-assignment DiD or cluster-randomized design.</desc>
+      <defs>
+        <marker id="fcarrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#6C7996" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- START -->
+      <rect x="350" y="15" width="250" height="50" rx="8" class="fc-box"/>
+      <text class="fc-text" x="475" y="45">New experiment / treatment idea</text>
+      <line x1="475" y1="65" x2="475" y2="98" class="fc-line" marker-end="url(#fcarrow)"/>
+
+      <!-- DIAMOND 1: interference? -->
+      <polygon points="475,105 630,165 475,225 320,165" class="fc-diamond"/>
+      <text class="fc-text" x="475" y="158">Does treatment touch a</text>
+      <text class="fc-text" x="475" y="174">SHARED RESOURCE?</text>
+
+      <!-- NO branch -->
+      <line x1="320" y1="165" x2="145" y2="165" class="fc-line" marker-end="url(#fcarrow)"/>
+      <text class="fc-branch-label" x="230" y="155">NO</text>
+      <rect x="20" y="133" width="245" height="65" rx="8" class="fc-outcome-blue"/>
+      <text class="fc-text" x="142" y="160">STANDARD A/B</text>
+      <text class="fc-text-sm" x="142" y="178">(user or session level) —</text>
+      <text class="fc-text-sm" x="142" y="191">simplest valid design</text>
+
+      <!-- YES branch down -->
+      <line x1="475" y1="225" x2="475" y2="268" class="fc-line" marker-end="url(#fcarrow)"/>
+      <text class="fc-branch-label" x="493" y="250">YES</text>
+
+      <!-- Box2: name the cause -->
+      <rect x="310" y="270" width="330" height="78" rx="8" class="fc-box"/>
+      <text class="fc-text" x="475" y="294">What's causing it? (dasher supply,</text>
+      <text class="fc-text" x="475" y="311">local demand pool, rank/ad slots,</text>
+      <text class="fc-text" x="475" y="328">or a shared backend algorithm)</text>
+
+      <!-- side branch to other interference types -->
+      <line x1="640" y1="309" x2="755" y2="309" class="fc-line" marker-end="url(#fcarrow)"/>
+      <rect x="758" y="245" width="175" height="185" rx="8" class="fc-outcome-side"/>
+      <text class="fc-text-sm" x="845" y="268">ZERO-SUM SLOTS</text>
+      <text class="fc-text-sm" x="845" y="282">(rank, ads): contained</text>
+      <text class="fc-text-sm" x="845" y="295">within ONE session →</text>
+      <text class="fc-text-sm" x="845" y="308">Standard A/B + market-</text>
+      <text class="fc-text-sm" x="845" y="321">level guardrail if demand</text>
+      <text class="fc-text-sm" x="845" y="334">concentrates on few merchants</text>
+      <text class="fc-text-sm" x="845" y="358">SYSTEMIC (shared algo,</text>
+      <text class="fc-text-sm" x="845" y="371">e.g. dispatch weighting):</text>
+      <text class="fc-text-sm" x="845" y="384">can't fix via zone size →</text>
+      <text class="fc-text-sm" x="845" y="397">state the assumption +</text>
+      <text class="fc-text-sm" x="845" y="410">add a guardrail check</text>
+
+      <!-- down to diamond 2 -->
+      <line x1="475" y1="348" x2="475" y2="383" class="fc-line" marker-end="url(#fcarrow)"/>
+
+      <!-- DIAMOND 2: can it move? -->
+      <polygon points="475,385 650,455 475,525 300,455" class="fc-diamond"/>
+      <text class="fc-text" x="475" y="443">Can the resource/entity</text>
+      <text class="fc-text" x="475" y="459">PHYSICALLY MOVE between</text>
+      <text class="fc-text" x="475" y="475">candidate units?</text>
+
+      <!-- ANCHORED branch (left) -->
+      <line x1="300" y1="455" x2="145" y2="455" class="fc-line" marker-end="url(#fcarrow)"/>
+      <text class="fc-branch-label" x="222" y="440">ANCHORED</text>
+      <rect x="20" y="423" width="245" height="65" rx="8" class="fc-box"/>
+      <text class="fc-text" x="142" y="450">Smaller unit OK:</text>
+      <text class="fc-text" x="142" y="468">ZONE or CLUSTER</text>
+
+      <!-- MOBILE branch (right) -->
+      <line x1="650" y1="455" x2="805" y2="455" class="fc-line" marker-end="url(#fcarrow)"/>
+      <text class="fc-branch-label" x="728" y="440">MOBILE</text>
+      <rect x="808" y="423" width="130" height="65" rx="8" class="fc-box"/>
+      <text class="fc-text" x="873" y="448">Unit must be</text>
+      <text class="fc-text" x="873" y="464">LARGER: WHOLE</text>
+      <text class="fc-text" x="873" y="480">MARKET</text>
+
+      <!-- both merge down to diamond 3 -->
+      <path d="M142,488 L142,558 L475,558" class="fc-line"/>
+      <path d="M873,488 L873,558 L475,558" class="fc-line"/>
+      <line x1="475" y1="558" x2="475" y2="593" class="fc-line" marker-end="url(#fcarrow)"/>
+
+      <!-- DIAMOND 3: temporal? -->
+      <polygon points="475,600 660,675 475,750 290,675" class="fc-diamond"/>
+      <text class="fc-text" x="475" y="663">Is the effect TEMPORAL?</text>
+      <text class="fc-text" x="475" y="679">(fast-resolving vs. slow-</text>
+      <text class="fc-text" x="475" y="695">maturing / needs adaptation)</text>
+
+      <!-- FAST branch -->
+      <line x1="330" y1="720" x2="240" y2="768" class="fc-line" marker-end="url(#fcarrow)"/>
+      <text class="fc-branch-label" x="250" y="745">FAST (hours)</text>
+      <rect x="90" y="770" width="290" height="100" rx="8" class="fc-outcome-teal"/>
+      <text class="fc-text" x="235" y="795">SWITCHBACK</text>
+      <text class="fc-text-sm" x="235" y="815">Repeated flip, short or daily blocks.</text>
+      <text class="fc-text-sm" x="235" y="830">Many replicates fast, using</text>
+      <text class="fc-text-sm" x="235" y="845">zones already in operation.</text>
+
+      <!-- SLOW branch -->
+      <line x1="620" y1="720" x2="710" y2="768" class="fc-line" marker-end="url(#fcarrow)"/>
+      <text class="fc-branch-label" x="700" y="745">SLOW / ADAPTS (weeks)</text>
+      <rect x="470" y="770" width="330" height="100" rx="8" class="fc-outcome-amber"/>
+      <text class="fc-text" x="635" y="795">SINGLE FIXED ASSIGNMENT</text>
+      <text class="fc-text-sm" x="635" y="815">Few eligible units → DiD or Synthetic Control.</text>
+      <text class="fc-text-sm" x="635" y="830">Many comparable units → cluster-</text>
+      <text class="fc-text-sm" x="635" y="845">randomized trial (single flip each).</text>
+    </svg>
+  </div>
+  <div class="content-block" style="margin-top:16px;">
+    <h3>Reading a case through this chart — Order Batching example</h3>
+    <p>Shared resource? YES (dasher supply) → not zero-sum/systemic, it's physical/economic → can it move? NO, orders are anchored → zone/cluster unit is fine → is it temporal? FAST (resolves within a delivery, no adaptation needed) → <b style="color:var(--teal)">SWITCHBACK</b>.</p>
+    <h3 style="margin-top:14px;">Peak Pay example — same chart, different path</h3>
+    <p>Shared resource? YES (dasher supply) → physical/economic → can it move? <b style="color:var(--red)">YES</b>, dashers can drive to another zone → unit must be the WHOLE MARKET → is it temporal? FAST (resolves within one shift) → still lands on repeated-window replicates, but at market level → a hybrid, closer to DiD run across repeated windows.</p>
+  </div>
+</div>
+
+<!-- ===================== QUIZ PANEL ===================== -->
+<div class="panel" id="panel-quiz">
+  <div class="content-block">
+    <h3>How to use this <span class="tag">self-test</span></h3>
+    <p>Only the prompt is shown. Talk through: interference reasoning → unit of randomization → primary/secondary/guardrail metrics → statistical test → sample size approach → duration. Then reveal and check yourself.</p>
+  </div>
+  <div id="quizList"></div>
+</div>
+
+<!-- ===================== FORMULA TOOLKIT ===================== -->
+<div class="panel" id="panel-formulas">
+  <div class="content-block" style="border-color:var(--teal);">
+    <h3>⚡ The one thing that never changes <span class="tag">read this first</span></h3>
+    <p><b style="color:var(--teal)">Every case in this console uses the IDENTICAL two-sided hypothesis test.</b> H0: no difference. H1: a difference exists. Alpha=0.05, power=80%, z_alpha/2=1.96, z_beta=0.84. This machinery never varies.</p>
+    <div class="formula-line">n = 15.68 × sigma² / MDE²      <- SAME formula, every single case</div>
+    <p>The <b>only</b> thing that ever changes is what <b style="color:var(--amber)">sigma</b> means and how much work it takes to compute correctly:</p>
+    <ul class="clean">
+      <li><b>Sigma measured at the exact same level you're randomizing on</b> (user tests, merchant clusters with enough historical weeks) → plug straight in, done</li>
+      <li><b>Sigma measured at a FINER level than your unit of randomization</b> (Case 1: order-level sigma, but you randomize blocks) → need [F3]/[F4] DEFF to correctly translate up</li>
+      <li><b>Sigma for a RATIO, not a plain average</b> (acceptance rate) → need [F5] delta method to even get a valid variance, before DEFF applies on top</li>
+    </ul>
+    <p style="margin-top:8px;">DEFF, delta method, and weeks-per-cluster averaging are never a DIFFERENT statistical framework — they're all just different amounts of work needed to get one correct number (sigma) into the one unchanging formula above.</p>
+  </div>
+  <div class="content-block">
+    <h3>[F1] Sample size — continuous metric, no clustering</h3>
+    <div class="formula-line">n per arm = (z_a/2 + z_b)^2 * 2*sigma^2 / MDE^2   ≈ 15.68 * sigma^2 / MDE^2   (80% power, 5% alpha, 2-sided)</div>
+    <p>Use for standard user-level A/B tests with a continuous outcome (delivery time, revenue).</p>
+  </div>
+  <div class="content-block">
+    <h3>[F2] Sample size — proportion/ratio metric, no clustering</h3>
+    <div class="formula-line">n per arm = (z_a/2 + z_b)^2 * [p1(1-p1) + p2(1-p2)] / (p1-p2)^2</div>
+    <p>Use for conversion rates, acceptance rates — but ONLY when there's no clustering. Never use this alone in a switchback design.</p>
+  </div>
+  <div class="content-block">
+    <h3>[F3] Design Effect (DEFF)</h3>
+    <div class="formula-line">DEFF = 1 + (m - 1) * ICC</div>
+    <p>m = avg units per block. ICC pulled from historical order-level ANOVA decomposition — never assumed. Behavioral/decision metrics (acceptance rate, retention) tend to have HIGHER ICC than physical metrics (delivery time), because individual "pickiness" is a stable trait, not independent noise.</p>
+  </div>
+  <div class="content-block">
+    <h3>[F4] Inflated sample size + blocks needed</h3>
+    <div class="formula-line">n_inflated = n_per_arm * DEFF
+blocks_per_arm = n_inflated / m
+total_blocks = blocks_per_arm * 2</div>
+  </div>
+  <div class="content-block">
+    <h3>[F5] Delta-method variance — RATIO metrics in a clustered design</h3>
+    <div class="formula-line">L_i = Y_i - R_hat * N_i                    (linearized pseudo-value per block)
+Var(R) ≈ Var(L) / (k * N_bar^2)             feed into [F1] in place of sigma^2</div>
+    <p>Needed because a ratio's variance isn't a simple proportion formula once numerator AND denominator are both random and correlated (e.g. same dasher makes multiple correlated decisions in one block).</p>
+  </div>
+  <div class="content-block">
+    <h3>[F6] Test duration — switchback</h3>
+    <div class="formula-line">duration = blocks_per_arm / (blocks_available_per_arm_per_calendar_unit)</div>
+  </div>
+  <div class="content-block">
+    <h3>[F7] DiD / matched-market sample size</h3>
+    <p>Treat market×period as the unit, apply [F3]/[F4] the same way — but feasibility (how many eligible markets exist) usually binds before a clean MDE-driven number does.</p>
+  </div>
+  <div class="content-block">
+    <h3>[F8] Synthetic Control — no traditional power formula</h3>
+    <p>Validity depends on donor pool size (5+ candidates) and pre-period fit quality (RMSE). Use <b style="color:var(--amber)">placebo tests</b> for validity, not a sample-size calc.</p>
+  </div>
+  <div class="content-block">
+    <h3>ICC calculation (ANOVA method)</h3>
+    <div class="formula-line">ICC = (MSB - MSW) / (MSB + (n0-1)*MSW)
+MSB = SSB/(k-1)     MSW = SSW/(N-k)     n0 = (N - Σn_i²/N)/(k-1)</div>
+    <p>Requires ORDER-LEVEL (not pre-aggregated) historical data at the same block granularity you plan to test with.</p>
+  </div>
+</div>
+
+<!-- ===================== SAMPLE SIZE, DURATION & DATA ===================== -->
+<div class="panel" id="panel-sampledata">
+  <div class="content-block">
+    <h3>Canonical procedure <span class="tag">apply to any case</span></h3>
+    <div class="flow-diagram">
+      <div class="flow-step"><div class="flow-num">1</div><p><b>Define the block</b> — the unit of randomization (e.g., zone × 2hr, zone × day, market × week). Must fully contain the interfering resource's reach (see each case's "Why Switchback" reasoning).</p></div>
+      <div class="flow-step"><div class="flow-num">2</div><p><b>Get baseline stats from HISTORICAL data</b> — mean, standard deviation (continuous) or baseline rate (ratio) for the metric, pulled from before the test, at the same block granularity you plan to use.</p></div>
+      <div class="flow-step"><div class="flow-num">3</div><p><b>Choose your MDE</b> — smallest effect that would actually change the business decision. Not "as small as possible" — going from detecting 1.5→0.4 units of effect requires ~16x the sample (inverse SQUARE relationship).</p></div>
+      <div class="flow-step"><div class="flow-num">4</div><p><b>Compute naive sample size</b> — [F1] for continuous, [F2] for ratio, using alpha=0.05, power=80% as defaults unless told otherwise.</p></div>
+      <div class="flow-step"><div class="flow-num">5</div><p><b>Get m and ICC from historical order-level data</b> — m = avg units per block; ICC via the ANOVA formula, computed at the SAME block granularity chosen in step 1. Never assume ICC — state you'd pull it from a variance decomposition.</p></div>
+      <div class="flow-step"><div class="flow-num">6</div><p><b>Inflate: DEFF = 1+(m-1)×ICC</b>, then n_inflated = n_naive × DEFF → blocks_per_arm = n_inflated/m → total_blocks = blocks_per_arm × 2.</p></div>
+      <div class="flow-step"><div class="flow-num">7</div><p><b>For RATIO metrics specifically</b> — insert delta-method linearization [F5] BEFORE step 6's DEFF inflation. Two separate corrections stack: delta method fixes the variance formula itself; DEFF then corrects for block clustering on top of that.</p></div>
+      <div class="flow-step"><div class="flow-num">8</div><p><b>Compute duration [F6]</b> — total_blocks ÷ (blocks available per calendar unit, e.g., zones × dayparts/day, or zones × days/weekend). If duration is too long, the fix is usually EXPANDING geographic footprint (more zones running in parallel), not shrinking block granularity — shrinking granularity risks violating the reach constraint from step 1.</p></div>
+      <div class="flow-step"><div class="flow-num">9</div><p><b>Consider CUPED</b> if a correlated pre-period covariate exists — can shrink required duration without changing anything about the design (see SRM & CUPED tab).</p></div>
+    </div>
+  </div>
+
+  <div class="content-block">
+    <h3>Dataset schema — CONTINUOUS metric <span class="tag">real data, Case 1</span></h3>
+    <p>One row per BLOCK — never per order. This is the ACTUAL data (first 10 of 210 real rows) that fed the verified WLS regression from Case 1 (treatment coefficient = −0.688, matched statsmodels to 5 decimals).</p>
+    <div class="formula-line">block_id | day | zone          | daypart   | treatment | n_orders | avg_cost_per_delivery
+1        | 1   | Zone_A_urban  | breakfast | 0         | 80       | 4.41
+2        | 1   | Zone_A_urban  | lunch     | 0         | 226      | 4.56
+3        | 1   | Zone_A_urban  | lull      | 0         | 46       | 5.28
+4        | 1   | Zone_A_urban  | dinner    | 1         | 230      | 3.92
+5        | 1   | Zone_A_urban  | late_night| 1         | 88       | 3.75
+6        | 2   | Zone_A_urban  | breakfast | 1         | 73       | 3.61
+7        | 2   | Zone_A_urban  | lunch     | 1         | 215      | 3.99
+8        | 2   | Zone_A_urban  | lull      | 1         | 52       | 3.20
+9        | 2   | Zone_A_urban  | dinner    | 0         | 338      | 4.24
+10       | 2   | Zone_A_urban  | late_night| 1         | 98       | 4.42
+...      (210 rows total, spanning 3 zones × 5 dayparts × 14 days)</div>
+    <p><b style="color:var(--teal)">avg_cost_per_delivery</b> = average of the raw per-order value WITHIN that block (never a block total, unless volume is itself the treatment mechanism — see Total vs. Average principle). <b style="color:var(--teal)">n_orders</b> is the WLS weight — here it's valid to use in-period observed volume, since batching doesn't change order count (exogenous). For promo/pricing cases, swap to HISTORICAL volume instead.</p>
+  </div>
+
+  <div class="content-block">
+    <h3>Dataset schema — RATIO metric <span class="tag">real data, delta method example</span></h3>
+    <p>One row per block, but TWO raw columns (numerator, denominator) before any ratio is computed. This is the ACTUAL 40-block data used to verify the delta-method linearization earlier (pooled R_hat = 0.5979).</p>
+    <div class="formula-line">block | n_offered | n_accepted | L_i = n_accepted - R_hat*n_offered
+1     | 38        | 21         | -1.721
+2     | 44        | 29         |  2.691
+3     | 43        | 27         |  1.289
+4     | 50        | 36         |  6.103
+5     | 37        | 25         |  2.877
+6     | 41        | 30         |  5.485
+7     | 50        | 32         |  2.103
+8     | 42        | 24         | -1.113
+9     | 35        | 16         | -4.928
+10    | 49        | 29         | -0.299
+...   (40 blocks total)</div>
+    <p><b style="color:var(--violet)">L_i</b> is computed AFTER you have R_hat (the pooled ratio across ALL blocks: sum(n_accepted)/sum(n_offered)) — this linearized column is what actually gets fed into the WLS regression as the outcome, weighted by n_offered. Never regress the raw ratio (n_accepted/n_offered) directly — that's the exact mistake that understates variance by 2.7-3.9x at realistic ICC.</p>
+  </div>
+
+  <div class="content-block">
+    <h3>Dataset schema — DiD / market-level <span class="tag">real data, verified example</span></h3>
+    <p>One row per market-period, long format. This is the EXACT dataset that produced the verified DiD estimate (treatment×post = 18.87, matched hand-calculation to 2 decimals).</p>
+    <div class="formula-line">week | market | dashers | treatment | post
+1    | T      | 100     | 1         | 0
+2    | T      | 102     | 1         | 0
+3    | T      | 104     | 1         | 0
+4    | T      | 107     | 1         | 0
+5    | T      | 109     | 1         | 0
+6    | T      | 112     | 1         | 0
+7    | T      | 114     | 1         | 0
+8    | T      | 117     | 1         | 0
+9    | T      | 135     | 1         | 1     <- treatment (bonus) starts week 9
+10   | T      | 138     | 1         | 1
+11   | T      | 142     | 1         | 1
+12   | T      | 146     | 1         | 1
+1    | C      | 80      | 0         | 0
+2    | C      | 82      | 0         | 0
+...  | C      | ...     | 0         | 0
+8    | C      | 95      | 0         | 0
+9    | C      | 97      | 0         | 1
+10   | C      | 99      | 0         | 1
+11   | C      | 101     | 0         | 1
+12   | C      | 104     | 0         | 1</div>
+    <p><b style="color:var(--amber)">treatment</b> = fixed per market for the whole series (0/1, never changes). <b style="color:var(--amber)">post</b> = 0 for pre-period rows, 1 for post-period rows. The regression `dashers ~ treatment*post` — the treatment×post interaction coefficient is the causal DiD estimate. Naive raw post-only diff (39.1) and naive pre/post-only diff (28.4) were BOTH shown biased; only the interaction term (18.87) is correct.</p>
+  </div>
+
+  <div class="content-block">
+    <h3>Dataset schema — Synthetic Control <span class="tag">real data, verified weight recovery</span></h3>
+    <p>Wide format: one row per time period, one column per candidate market. This is the EXACT pre-period data that produced the verified weight recovery (optimizer found 0.453/0.321/0.226/0.000 against a true hidden blend of 0.5/0.3/0.2/0.0 — recovered purely from pattern-matching, no knowledge of how the data was generated).</p>
+    <div class="formula-line">week | Treated | Donor1 | Donor2 | Donor3 | Donor4
+1    | 87.9    | 91.9   | 59.6   | 121.0  | 41.3
+2    | 89.1    | 92.7   | 61.4   | 123.1  | 40.4
+3    | 92.2    | 96.9   | 62.0   | 125.1  | 41.5
+4    | 92.7    | 95.7   | 63.8   | 127.6  | 41.9
+5    | 93.8    | 97.6   | 62.3   | 131.0  | 42.4
+6    | 96.7    | 100.6  | 64.1   | 132.7  | 43.2
+7    | 97.2    | 99.6   | 66.8   | 134.1  | 43.7
+8    | 98.6    | 101.4  | 68.3   | 135.6  | 45.3
+9    | 99.0    | 103.7  | 65.7   | 138.0  | 44.4
+10   | 100.9   | 104.7  | 68.6   | 139.9  | 46.6
+...  (weeks 11-14 = post-period, Donor columns continue, Treated shows the real effect)</div>
+    <p>Solve weights on PRE-PERIOD rows only (minimize squared gap between Treated and the weighted donor blend, weights≥0 summing to 1); apply those same weights to POST-PERIOD donor rows to build the counterfactual, then effect = actual − counterfactual, period by period. Verified post-period result: estimated effect 11.72 vs. true built-in effect of 12.</p>
+  </div>
+
+  <div class="content-block">
+    <h3>Quick reference: which schema for which case</h3>
+    <ul class="clean">
+      <li><b>Continuous:</b> Case 1 (cost/delivery), Case 6 (net revenue — as a TOTAL, see audit note), Case 9 (avg rating)</li>
+      <li><b>Ratio / delta method:</b> Case 3 (retention as a ratio), Case 8 (fulfillment rate)</li>
+      <li><b>DiD market-level:</b> Case 7 (referral bonus), Case 8 (after mobility fix)</li>
+      <li><b>Synthetic Control:</b> Case 7 if only 1-3 treated markets available</li>
+      <li><b>Standard A/B, user-level (simplest schema — just user_id, treatment, outcome):</b> Cases 2, 4, 9 (baseline), 11, 12</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ===================== SRM & CUPED ===================== -->
+<div class="panel" id="panel-srm">
+  <div class="content-block">
+    <h3>Sample Ratio Mismatch (SRM) <span class="tag">diagnostic</span></h3>
+    <p>Checks whether the observed treatment/control split matches the expected randomization ratio — a chi-square goodness-of-fit test.</p>
+    <div class="formula-line">chi-square = Σ [(observed_i - expected_i)^2 / expected_i]     (1 df, 2 arms)</div>
+    <p><b style="color:var(--red)">The critical trap:</b> run SRM on BLOCK COUNTS, never order counts — block sizes vary naturally (dinner vs. lull), so an order-count check will falsely flag "significant mismatch" even under perfectly correct randomization.</p>
+    <ul class="clean">
+      <li>Run it overall AND per stratum (zone × daypart) — a global check can mask a stratum-specific bug</li>
+      <li>Use a strict threshold, p &lt; 0.001, not 0.05 — you want strong evidence before crying "bug," not a hair-trigger on noise</li>
+    </ul>
+  </div>
+  <div class="content-block">
+    <h3>CUPED <span class="tag">variance reduction</span></h3>
+    <p>Uses a pre-experiment covariate correlated with the outcome (but unaffected by treatment) to shrink variance — increasing power for the SAME sample size.</p>
+    <div class="formula-line">Y_adjusted = Y - theta * (X - X_bar)
+theta = Cov(Y, X) / Var(X)
+Var(Y_adjusted) = Var(Y) * (1 - corr(X,Y)^2)</div>
+    <p><b>Verified worked example</b> (100 blocks, pre-period X correlated with outcome Y at r=0.573):</p>
+    <span class="result-pill">Var(Y) without CUPED: 53.16</span>
+    <span class="result-pill">Var(Y_adj) with CUPED: 35.71</span>
+    <span class="result-pill">Variance reduction: 32.8%</span>
+    <p style="margin-top:10px;">Matches the theoretical prediction (1 − 0.573² ≈ 0.672) almost exactly. Both estimate the SAME true effect — CUPED just does it with less noise.</p>
+    <p><b>For switchback specifically:</b> use each block's own HISTORICAL (pre-test) average for the same metric as X — e.g. a zone-daypart's historical avg delivery time from weeks before the test. Effectively "free" power — can shrink required duration without changing the design itself.</p>
+  </div>
+</div>
+
+<!-- ===================== EVALUATION MECHANICS ===================== -->
+<div class="panel" id="panel-eval">
+  <div class="content-block">
+    <h3>The core regression <span class="tag">verified by hand</span></h3>
+    <div class="formula-line">beta_hat = (X'WX)^-1 X'WY</div>
+    <p>X = design matrix (intercept + treatment 0/1 + zone/daypart dummies, one reference category dropped per variable to avoid perfect multicollinearity). W = diagonal matrix of weights (n_orders per block — WLS, not OLS, because Var(block mean) = sigma²/n_i). Manually solved and matched statsmodels output to 5 decimal places.</p>
+  </div>
+  <div class="content-block">
+    <h3>What the treatment coefficient actually IS</h3>
+    <p>NOT a standalone "treatment group value" — it's already the treatment-minus-control delta, computed within each stratum. Verified by predicting Zone_B+lunch at treatment=0 vs 1: the difference exactly equals the coefficient. With a plain 0/1 dummy alone, beta1 = treatment_mean − control_mean, exactly.</p>
+    <p><b style="color:var(--amber)">Terminology:</b> "treatment" in the data = an arm-membership INDICATOR present on every row (0 or 1), not "the treatment arm's value." The COEFFICIENT on that column is the effect.</p>
+  </div>
+  <div class="content-block">
+    <h3>Where control data enters</h3>
+    <p>Same X matrix and Y vector as treatment — distinguished only by treatment=0 vs 1. Proven necessary: removing all control rows makes the treatment column constant (all 1s), collinear with the intercept → X'X becomes singular → Python throws an actual error. Control rows are what give the treatment column its variation.</p>
+  </div>
+  <div class="content-block">
+    <h3>Cluster-robust "sandwich" SE <span class="tag">verified by hand</span></h3>
+    <div class="formula-line">Var(beta_hat) = (X'WX)^-1 [Σ_g X_g'W_g u_g u_g' W_g X_g] (X'WX)^-1</div>
+    <p>g = clusters (day, weekend_id). Relaxes independence from "every block independent" to "independent only across clusters." Manually implemented and matched statsmodels to 5 decimals.</p>
+  </div>
+  <div class="content-block">
+    <h3>Full pipeline, input → output</h3>
+    <div class="flow-diagram">
+      <div class="flow-step"><div class="flow-num">1</div><p>Raw order-level logs (one row per order)</p></div>
+      <div class="flow-step"><div class="flow-num">2</div><p>GROUP BY block_id → aggregate to block level — the ONLY valid unit of analysis (avoids pseudo-replication)</p></div>
+      <div class="flow-step"><div class="flow-num">3</div><p>Build design matrix X (dummy-encode, drop reference categories) + weight matrix W</p></div>
+      <div class="flow-step"><div class="flow-num">4</div><p>Fit: beta_hat = (X'WX)^-1 X'WY</p></div>
+      <div class="flow-step"><div class="flow-num">5</div><p>t = beta_hat / SE(cluster-robust) → p-value, 95% CI via t-distribution</p></div>
+      <div class="flow-step"><div class="flow-num">6</div><p>Compare against pre-registered alpha, MDE, guardrail thresholds</p></div>
+      <div class="flow-step"><div class="flow-num">7</div><p>Decision: primary first → guardrails independently → heterogeneity w/ honest power caveats</p></div>
+    </div>
+  </div>
+  <div class="content-block">
+    <h3>Pseudo-replication, precisely</h3>
+    <p>Treating correlated within-block orders as independent makes the TRUE standard error understated by the naive calculation — <b style="color:var(--red)">not</b> "4x larger than it actually is." True_SE = Naive_SE × √DEFF. Small (wrong) SE in the denominator of t = effect/SE → artificially large t-stat → false positive.</p>
+  </div>
+  <div class="content-block">
+    <h3>Ratio metrics: TWO separate corrections needed</h3>
+    <ul class="clean">
+      <li>DEFF/clustering corrects for: randomization unit is the block, not the individual event</li>
+      <li>Delta method corrects for: even at the correct block level, a ratio's variance isn't a simple proportion formula, since numerator & denominator are both random and correlated</li>
+    </ul>
+    <p>At realistic ICC=0.10–0.15 for a behavioral metric, naive approach understates required sample size by <b style="color:var(--red)">2.7×–3.9×</b>.</p>
+  </div>
+  <div class="content-block">
+    <h3>Total vs. average — the audit-found principle</h3>
+    <p>Average-per-order-within-block is only valid when order count is EXOGENOUS to treatment. When treatment's mechanism changes volume itself (pricing, promos, discounts), volume is a MEDIATOR — use TOTAL per block instead, weighted by HISTORICAL/pre-period volume, never in-period observed volume (a post-treatment, endogenous variable).</p>
+  </div>
+</div>
+
+<!-- ===================== LAUNCH & ROLLOUT ===================== -->
+<div class="panel" id="panel-rollout">
+  <div class="content-block">
+    <h3>Preventing concurrent-experiment interference: Layers</h3>
+    <p><b>Layer</b> = a group of mutually-exclusive experiments testing the same/overlapping lever or touching the same decision/UI surface — regardless of stated "purpose."</p>
+    <div class="formula-line">bucket = hash(unit_id + salt) % 100</div>
+    <p>Same salt → same layer → mutually exclusive by construction. Different salt → different layer → statistically independent, safe to run simultaneously.</p>
+    <p><b>Governance:</b> check an experiment registry before launch. If two experiments must share a population and can't be layered apart — run a factorial design (test the interaction term explicitly) or sequence them.</p>
+  </div>
+  <div class="content-block">
+    <h3>Rollout sequence, once a test wins</h3>
+    <div class="roll-steps">
+      <div class="roll-step"><b>Design & registry check</b><span>confirm no collision with running tests</span></div>
+      <div class="roll-step"><b>Pilot / canary</b><span>1-5% or a couple zones, days — bug/guardrail sanity check, NOT statistically powered</span></div>
+      <div class="roll-step"><b>Full-power test</b><span>per sample size calc, full duration</span></div>
+      <div class="roll-step"><b>Decision</b><span>ship / no-ship / iterate</span></div>
+      <div class="roll-step"><b>Staged rollout</b><span>5% → 25% → 50% → 100%, guardrails monitored EVERY stage, auto-rollback trigger</span></div>
+      <div class="roll-step"><b>Long-term holdout</b><span>2-5%, held back for months — catches novelty decay</span></div>
+    </div>
+    <p><b style="color:var(--amber)">Why not flip straight to 100%:</b> the test population was a sample — operational strain that didn't show up at 15 zones might appear at true full scale (supply dynamics differ once EVERY dasher is affected simultaneously).</p>
+    <p><b style="color:var(--amber)">Why the long-term holdout:</b> short windows can't distinguish a genuine effect from a novelty effect. Holding a group back for months checks if lift persists once the change becomes routine.</p>
+  </div>
+</div>
+
+<!-- ===================== EDGE CASES ===================== -->
+<div class="panel" id="panel-edge">
+  <div class="content-block">
+    <h3>Master cross-cutting edge case list</h3>
+    <ul class="clean" id="edgeList"></ul>
+  </div>
+</div>
+
+<footer>Built for the DoorDash Staff DS interview — review, don't cram. Good luck.</footer>
+
+<script>
+const CASES = [
+  {n:1, title:"Order Batching Algorithm", method:"switchback", tag:"m-switchback", route:"spatial-short",
+   hyp:"Batching nearby orders onto one dasher trip reduces cost per delivery without meaningfully hurting delivery time.",
+   why:"YES, switchback needed. Batching pulls a dasher away from the shared pool serving nearby orders — a treated order's dasher assignment directly reduces supply available to a nearby control order. User/order-level randomization would let treatment starve control of dashers, biasing the comparison. Order location is fixed (can't move), so a zone contains the leak cleanly. WHY SWITCHBACK NOT DiD: batching's effect resolves within HOURS (no multi-week adaptation needed), so short, repeatedly-flipped blocks give dozens of valid replicates in ~2 weeks using zones already in operation. DiD would need ~38 different CITIES to match that power from single-assignment markets, plus a month-long single assignment exposes the comparison to a full month of city-specific confounds (weather, local events) that switchback's constant time-interleaving of both arms avoids entirely.",
+   miniroute:["Shared dasher supply","Spatial, short","Zone × 2hr block","Switchback"],
+   primary:"Cost per delivery ($/block, avg per delivery within block)",
+   guardrail:"Delivery time (+2min), cancellation rate (+0.5pp), CSAT, merchant wait time",
+   secondary:"Offer-acceptance rate (overall, not batch-only)",
+   stattest:"WLS: cost ~ treatment + C(zone) + C(daypart), weights=n_orders, cluster SE by day",
+   samplesize:"697 orders/arm naive → DEFF≈4 (m=150,ICC=0.02) → 2,788 inflated → ~19 blocks/arm → 38 total",
+   duration:"~2 weeks (day-of-week coverage + confound buffer)",
+   edge:"Carryover across block boundaries; non-compliance (dasher declines batch); heterogeneity by zone density; multiple-comparisons across guardrails."},
+
+  {n:2, title:"DashPass Free-Delivery Threshold Change", method:"ab", tag:"m-ab", route:"none",
+   hyp:"Raising the free-delivery minimum increases avg basket size and net revenue per user without materially hurting order frequency or renewal.",
+   why:"MOSTLY no, with an honest caveat (revisited/calibrated). In the strictest sense, if enough users in the same zone shift basket size or order frequency simultaneously, that COULD diffusely affect zone-level demand, which touches the same category of resource (dasher supply/demand balance) that makes other cases switchback-worthy. BUT this effect is small and gradual (adding one item vs. a binary 'order or don't' choice) and typically only a modest share of zone traffic is in-test at once — much weaker than the promo's or Peak Pay's deliberate, large-scale volume/supply shifts. Practical call: standard user-level A/B as primary design, PLUS a lightweight zone-level order-volume/dasher-utilization guardrail as a sanity check, rather than assuming zero risk outright or over-building a full switchback around a marginal effect. WHY A/B NOT SWITCHBACK/DiD: with millions of eligible users and negligible interference, switchback's blocking/clustering would only cost statistical power (via DEFF) with no bias-correction benefit to buy back — there's no shared resource meaningful enough to justify it. DiD is for when you're short on independently-randomizable units; here you have effectively unlimited users, so the simplest valid design wins outright.",
+   miniroute:["Diffuse, likely negligible","Small & gradual","User-level","Standard A/B + guardrail check"],
+   primary:"Net revenue per DashPass user (TOTAL across their orders — correctly captures frequency AND value together)",
+   guardrail:"Order volume, renewal rate, PLUS zone-level order-volume/dasher-utilization sanity check",
+   secondary:"Basket size, order frequency",
+   stattest:"Two-sample t-test / OLS, robust SE, no clustering",
+   samplesize:"[F1] directly, no DEFF",
+   duration:"At least 1-2 full DashPass billing cycles regardless of when n is reached",
+   edge:"Churn is slow-forming (monthly cycle) — short window won't capture it. If the zone-level guardrail ever shows real movement, escalate to a proper switchback re-design rather than trusting the simple A/B read."},
+
+  {n:3, title:"Dasher Pay Model (Guaranteed Min vs. Per-Delivery)", method:"did", tag:"m-did", route:"temporal",
+   hyp:"Guaranteeing a minimum hourly rate improves retention enough that supply gains outweigh the higher guaranteed-pay cost.",
+   why:"YES, interference exists, but a SHORT switchback is the wrong shape. Pay structure changes dasher behavior (which offers they accept, hours worked) market-wide — this reshapes the whole market's supply pool, not just one block's. A dasher doesn't reset their earnings mindset every 2 hours, so short blocks would just add noise without containing anything. The reach is temporal (weeks) and market-wide, which is why this resolves to long blocks / DiD rather than a fast-flipping switchback. WHY DiD/LONG-BLOCK NOT SHORT SWITCHBACK: pay model changes require an ADAPTATION period — flipping every 2 hours (or even daily) would reset dashers' mental model of earnings before they've had time to genuinely change behavior, undermeasuring the real effect. WHY NOT REPEATED-FLIP EVEN AT LONG BLOCKS: every flip re-triggers the adaptation lag, wasting it — a single fixed assignment for the whole test (DiD-style before/after) lets behavior fully settle once, rather than repeatedly resetting the clock.",
+   miniroute:["Dasher mindset shift","Long, market-wide","Market × multi-day","DiD, long blocks"],
+   primary:"Net cost per unit of retained supply (merges pay-cost increase against reduced other-incentive spend, per retained dasher — same merge logic as Case 7)",
+   guardrail:"Delivery time, fulfillment rate",
+   secondary:"Raw retention rate, acceptance rate, hours worked",
+   stattest:"Ratio metric → [F5] delta method, then WLS on linearized value + cluster SE by market",
+   samplesize:"[F2] baseline via [F5], then [F3]/[F4] — ICC likely HIGHER (behavioral/decision metric)",
+   duration:"Likely months — few markets, long blocks",
+   edge:"Self-selection into treatment; regulatory confound (exclude markets w/ pending minimum-pay laws); two-sided guardrail tension (cost AND speed both at risk)."},
+
+  {n:4, title:"ETA Display (Range vs. Single Estimate)", method:"ab", tag:"m-ab", route:"none",
+   hyp:"Showing a range instead of a point estimate improves post-delivery satisfaction by managing expectations, though it may reduce checkout conversion.",
+   why:"NO, switchback not needed. Purely a UI/perception change — the underlying delivery/dispatch mechanics are identical for both arms. Two users seeing different ETA formats for the same kind of delivery don't compete for anything shared. Standard user/session-level A/B is correct; this is a case where reflexively reaching for switchback would be a mistake. WHY A/B NOT SWITCHBACK/DiD: no shared resource exists to interfere with, and session volume is effectively unlimited, so there's no reason to sacrifice statistical power to DEFF inflation, and no reason to fall back to DiD's slower, feasibility-constrained design either — both alternatives solve problems that simply don't exist here.",
+   miniroute:["No shared resource","—","User/session","Standard A/B"],
+   primary:"Conversion rate",
+   guardrail:"None strictly adversarial",
+   secondary:"Satisfaction/rating, cancellation rate",
+   stattest:"Two-sample proportion test / logistic regression, no clustering",
+   samplesize:"[F2] directly",
+   duration:"Sessions needed / daily session volume — no block structure",
+   edge:"Real tension is conversion vs. trust, not design; heterogeneity by delivery predictability (range likely helps most when point-estimates are least reliable)."},
+
+  {n:5, title:"Merchant Menu-Pricing Recommendation", method:"cluster", tag:"m-cluster", route:"cluster",
+   hyp:"Algorithmic pricing/bundling recommendations increase TOTAL merchant revenue, even if volume shifts, because per-order value gain outweighs order suppression.",
+   why:"YES, interference exists — the LEAST obvious mechanism of all 12 cases — but the DESIGN is a CLUSTER-RANDOMIZED TRIAL, NOT switchback. Picture 3 pizza places (Tony's, Mario's, Luigi's) in one neighborhood — if Tony raises prices, lost customers don't vanish, most just walk over to Mario's or Luigi's. Randomizing individual merchants lets that spillover contaminate 'control' (a merchant who changed nothing still sees revenue rise). The fix: flip ONE coin per whole cluster (all substitutable merchants get the same arm), so any reshuffling stays contained inside one arm. The interference flows through a shared LOCAL DEMAND POOL, not shared dasher supply — a cluster is just 'a group of merchants customers treat as swappable.' WHY CLUSTER-RANDOMIZED (SINGLE FIXED ASSIGNMENT), NOT SWITCHBACK: switchback means the SAME unit repeatedly flips between arms over time — that's not what happens here. Each cluster gets ONE coin flip, held for the whole test. Price changes also need TIME for customers to notice and adjust ordering habits — flipping a price every 2 hours wouldn't let true demand response manifest, and flickering prices would be operationally confusing/damaging for merchant trust. WHY NOT INDIVIDUAL-MERCHANT A/B: proven via simulation — spillover directly contaminates control's numbers, making the comparison meaningless.",
+   miniroute:["Shared local demand pool (substitution)","Cross-merchant, within cluster","Merchant cluster (single fixed assignment)","Cluster-randomized trial (NOT switchback)"],
+   primary:"TOTAL merchant revenue per CLUSTER (NOT per-order or per-merchant average — a single merchant's number lies, since some of its 'loss' is just spillover to neighbors, not real lost business)",
+   guardrail:"Cancellation rate, merchant churn, cannibalization",
+   secondary:"Order volume per merchant, revenue per order (decomposes price vs. volume)",
+   stattest:"WLS: total_cluster_revenue ~ treatment, weighted by historical cluster size. DELTA METHOD NOT NEEDED: delta method only applies to RATIO metrics (two varying quantities divided, like fulfillment rate). Total revenue is a SUM, not a ratio — no division happening, so there's nothing for delta method to linearize, even though unit of randomization (cluster) differs from unit of analysis (order).",
+   samplesize:"NO DEFF needed IF sigma is measured DIRECTLY at the cluster level (pull historical weekly totals per cluster, compute variance ACROSS clusters). Worked example: sigma=$994 (real cluster-to-cluster spread), MDE=$500 → n=62 clusters/arm, 124 total. If forced to build sigma from order-level history instead (no direct cluster-level history available), use a DEFF-STYLE correction (same family as Case 1) — NOT delta method, since the metric is still a sum, not a ratio.",
+   duration:"NOT 'blocks needed ÷ blocks per day' (no repeated flipping) — instead 'how many weeks to watch EACH cluster before its number is trustworthy.' Real trade-off: watching longer per cluster REDUCES clusters needed (week-to-week noise averages out) — verified: W=1wk→85 clusters, W=3wk→69, W=6wk→66, W=10wk→64 (diminishing returns after ~6 weeks). Formula: effective_sigma(W)=sqrt(tau^2 + sigma_week^2/W).",
+   edge:"Adverse selection in recommendation quality by cuisine; merchant trust as unmeasured longer-horizon cost; fairness (algorithmic price hikes for small businesses); defining the cluster itself is the hardest step — rule-based (cuisine+geo-radius) vs. data-driven (historical browsing/switching co-occurrence)."},
+
+  {n:6, title:"Free Delivery Weekend Promo", method:"switchback", tag:"m-switchback", route:"spatial-visible",
+   hyp:"Waiving delivery fees drives enough incremental order volume that added TOTAL commission revenue outweighs total forgone fee revenue.",
+   why:"YES, switchback needed, but block length can't default to the batching case's 2 hours. Two interference sources stack here: dasher supply (a demand spike strains the shared pool) AND customer expectation (a visible promo). The second one is the deciding factor for block length — a customer who sees free delivery at 1pm and orders at 4pm expecting it, but finds it gone, is a real UX cost. Blocks must span at least a session/day to respect visible consistency, not just contain the supply leak. WHY DAILY SWITCHBACK NOT SINGLE-ASSIGNMENT DiD: the promo's effect fully resolves within a session/day, with no multi-week funnel to protect — so, like batching, you can safely generate many independent day-blocks fast using existing zones, rather than paying DiD's cost of needing many more cities or a long single per-market assignment. WHY NOT 2-HOUR BLOCKS: would violate customer-visible consistency mid-session, a real product cost independent of the statistics.",
+   miniroute:["Dasher supply + customer expectation","Session/day, visible","Zone × single day","Switchback, daily blocks"],
+   primary:"TOTAL net revenue per block (commission earned − fees forgone, whole zone-day) — NOT averaged per order",
+   guardrail:"Fulfillment rate, merchant wait time, delivery time",
+   secondary:"Order volume, new customers, orders/person, net revenue per order",
+   stattest:"WLS: total_net_revenue ~ treatment + C(zone) + C(day_type), weighted by historical volume, cluster SE by weekend_id",
+   samplesize:"Worked: n≈2134/arm naive → DEFF=5.17(m=140,ICC=0.03) → ~11,034 inflated → 79 blocks/arm → 158 total",
+   duration:"~5.3 weekends (~37 days) with 15 zones, zone×day blocks",
+   edge:"Within-person carryover across days in same zone; Sat/Sun must be separate strata (different baseline demand)."},
+
+  {n:7, title:"Dasher Referral Bonus Increase", method:"did", tag:"m-did", route:"temporal",
+   hyp:"A larger referral bonus increases existing dashers' motivation to refer, driving more net-new activated supply per dollar spent.",
+   why:"NOT a repeatedly-switching switchback, even though real interference exists. The referral act itself is individual and self-contained (one dasher's decision to refer doesn't compete with another's). But DOWNSTREAM, once a referred dasher completes onboarding, they join the shared market supply pool. There's ALSO a second, independent interference channel: network/word-of-mouth effects — a dasher's referral behavior is influenced by what their friends and connections experience, and referral relationships are almost always geographically local, so market-level clustering happens to contain both leaks at once. WHY DiD/SYNTHETIC CONTROL NOT SWITCHBACK: this funnel spans WEEKS (referral→signup→onboarding→threshold→retention) — flipping a market's bonus mid-funnel would muddle attribution for anyone mid-chain, and flickering bonus tiers would confuse both dashers and their referral targets. This degenerates into a single-flip geo experiment. WHY DiD SPECIFICALLY (NOT A LARGER CLUSTER-RANDOMIZED TRIAL): only a handful of eligible markets exist for a program this targeted — with many available markets you'd prefer randomizing across a large pool; DiD's before/after structure becomes necessary specifically when you're down to just 1-3 markets and need historical trend comparison to substitute for the confound-averaging that many parallel random units would otherwise provide.",
+   miniroute:["Downstream: activated supply joins shared pool","Weeks-long funnel","Market, single assignment","DiD / Synthetic Control"],
+   primary:"Cost per net-new activated & retained dasher (bonus $ ÷ dashers completing threshold AND staying active — matches DoorDash's own payout trigger)",
+   guardrail:"Existing-dasher earnings/hr, post-threshold retention (catches threshold-gaming), referral fraud rate",
+   secondary:"Full funnel: sent → signup → onboard → threshold",
+   stattest:"DiD: outcome ~ treatment*post + C(market); Synthetic Control + placebo test if only 1-3 treated markets",
+   samplesize:"[F7] — market-week is the unit, feasibility (eligible markets) usually binds first",
+   duration:"6-8+ weeks minimum (funnel time + post-threshold retention window)",
+   edge:"Match on PRE-PERIOD TREND not level (parallel trends); DiD worked example verified effect=18.9 two ways; Synthetic Control recovered true weights (0.45/0.32/0.23 vs true 0.5/0.3/0.2) and effect (11.72 vs true 12) purely from pre-period pattern-matching."},
+
+  {n:8, title:"Peak Pay Incentive", method:"did", tag:"m-did", route:"mobile",
+   hyp:"Elevated Peak Pay during high-demand windows pulls genuinely incremental dashers onto the road, improving fulfillment rate at an acceptable cost.",
+   why:"Zone-level switchback FAILS here, even though it worked for Case 1 — the key difference is MOBILITY. Dashers (unlike orders) can physically relocate toward higher pay: a control-zone dasher can simply drive into an adjacent treatment zone, contaminating control and making it worse than true baseline. Making the zone smaller doesn't fix this, it makes it worse. The fix is randomizing the WHOLE MARKET, removing any adjacent lower-paying zone to defect to — which pushes this into DiD/matched-markets territory instead of a switchback. WHY MARKET-LEVEL WITH REPEATED WINDOWS (NOT A SINGLE DiD ASSIGNMENT LIKE REFERRAL BONUS): Peak Pay's effect resolves within a single shift/night — no multi-week funnel — so unlike the referral case, you actually WANT repeated exposure across multiple Friday/Saturday nights rather than one fixed assignment for the whole test; this is a hybrid — short temporal reach (like batching) forces you to want repeated replicates, but mobile spatial reach (unlike batching) forces the unit up to whole-market. WHY NOT SHORT SWITCHBACK BLOCKS: mobility, not batching's clean zone-containment, is the deciding factor.",
+   miniroute:["Dasher supply — MOBILE","Crosses zone boundaries","Whole MARKET (not zone)","DiD, matched markets"],
+   primary:"Order fulfillment rate (the real downstream objective, not just 'more dashers online' which is the mechanism)",
+   guardrail:"Net revenue/ROI (must not get silently dropped), delivery time",
+   secondary:"Active-dasher %, offer acceptance rate, dasher effective hourly pay",
+   stattest:"Ratio → [F5] delta method on market-window values, then DiD regression",
+   samplesize:"[F2] baseline via [F5], then [F7] — feasibility-bound",
+   duration:"3-4 weeks minimum (need repeated Fri/Sat windows across pre/post)",
+   edge:"KEY TRAP: zone-based blocking doesn't contain mobile dashers — a control-zone dasher can drive INTO a treatment zone, contaminating control. Fix: randomize whole market, not zone."},
+
+  {n:9, title:"Dasher Rating Real-Time Feedback", method:"ab", tag:"m-ab", route:"systemic",
+   hyp:"Showing dashers the specific reason they lost stars (not just the count) helps them correct behavior, improving future ratings.",
+   why:"CONDITIONAL — depends on an assumption you must state explicitly. If dispatch does NOT weight assignment on dasher rating, one dasher's feedback has no effect on another's experience — standard dasher-level A/B is correct, no switchback needed. BUT if dispatch DOES weight on rating, a second-order leak appears: treatment dashers who improve could get preferentially routed better orders over time, pulling from the same pool control dashers draw from — a delayed, SYSTEMIC interference that can't be fixed by resizing zones (it flows through a shared algorithm, not geography). Correct answer: state the assumption out loud, and add a market-level guardrail check as insurance if the assumption isn't fully verified. WHY A/B NOT SWITCHBACK: under the stated assumption there's no shared resource for blocking to contain — switchback's clustering would only cost power via DEFF with no bias correction to buy back. The dispatch-weighting risk, if it exists, is a slow-forming systemic effect better caught via a lightweight guardrail than by redesigning the entire primary test around an unconfirmed risk.",
+   miniroute:["None IF dispatch ignores rating","Individual, unless systemic","Dasher-level","Standard A/B + guardrail check"],
+   primary:"Avg rating per dasher — weighted by # rated deliveries (same WLS logic as unequal block sizes); watch ceiling effect (ratings cluster 4.7-4.9)",
+   guardrail:"Dasher attrition, delivery time",
+   secondary:"Category-specific complaint rates (late/order-issue/communication), response/action rate",
+   stattest:"WLS: avg_rating ~ treatment, weights=#rated deliveries, robust SE (+ market-cluster SE as guardrail check if dispatch-weighting risk unresolved)",
+   samplesize:"[F1], but ceiling effect shrinks effective variance — may need larger n or switch to category-specific rate metric",
+   duration:"Dashers needed / avg new-rated-deliveries per dasher per week",
+   edge:"SECOND-ORDER CHECK: if dispatch weights on rating, better-performing treatment dashers could get preferentially routed better orders over time, pulling from the same pool control dashers draw from — a delayed, systemic leak. State the no-interference assumption explicitly."},
+
+  {n:10, title:"Merchant-Funded BOGO Promo", method:"cluster", tag:"m-cluster", route:"cluster",
+   hyp:"A merchant-funded BOGO drives enough incremental TOTAL order revenue to more than offset the total cost of items given away.",
+   why:"YES, interference exists — identical mechanism to Case 5: shared local consumer demand pool causes cross-merchant substitution, regardless of who's funding the discount. The cost-bearer (merchant vs. DoorDash) changes WHO the primary metric is netted for, but doesn't change WHY interference exists or WHAT unit contains it. Same merchant-cluster design as Case 5 — a CLUSTER-RANDOMIZED TRIAL, NOT switchback (each cluster gets ONE fixed assignment, never repeatedly flipped). WHY CLUSTER-RANDOMIZED NOT SWITCHBACK: identical to Case 5 — a BOGO deal needs time for customers to notice and respond, and flickering a merchant's promo on/off every couple hours would be operationally confusing and could look like a bug rather than a deliberate offer. WHY NOT INDIVIDUAL-MERCHANT A/B: same substitution-contamination risk demonstrated in Case 5's simulation applies directly here.",
+   miniroute:["Shared local demand pool","Cross-merchant substitution","Merchant cluster (single fixed assignment)","Cluster-randomized trial (NOT switchback)"],
+   primary:"TOTAL net merchant revenue per block (incremental revenue − item cost, whole cluster-period) — NOT per-order average",
+   guardrail:"DoorDash take-rate revenue, consumer cancellation rate, merchant churn",
+   secondary:"Order volume, revenue per order, new vs. repeat customers",
+   stattest:"WLS: total_net_merchant_revenue ~ treatment + C(cluster_type), weighted by historical volume, cluster SE by week. DELTA METHOD NOT NEEDED — same reasoning as Case 5: total revenue is a SUM, not a ratio, so there's nothing for delta method to linearize even though the randomization unit (cluster) differs from the analysis unit (order).",
+   samplesize:"Same m/ICC logic as Case 5",
+   duration:"Bounded by comparable merchant clusters available",
+   edge:"TWO ROUNDS OF CORRECTION found via audit: (1) 'DoorDash doesn't pay' ≠ 'no cost exists' — merchant bears cost, primary must merge cost+benefit for THEIR decision; (2) even merged, must use TOTAL not per-order average since volume is the mechanism, same fix as Case 5/6."},
+
+  {n:11, title:"Restaurant Search-Ranking Algorithm", method:"zerosum", tag:"m-zerosum", route:"zerosum",
+   hyp:"A new ranking algorithm increases order conversion and satisfaction without unfairly suppressing smaller/newer merchants.",
+   why:"NO classic switchback — a genuinely different interference TYPE. Rank position is zero-sum (fixed slots on a page; one restaurant's gain is mechanically another's loss), not a shared physical resource like dasher supply. This interference lives WITHIN a single user's results page, not BETWEEN users — so user/session-level A/B contains it cleanly. Switchback would only re-enter the picture if you cared about aggregate market-wide demand redistribution effects, not the individual conversion question. WHY SESSION-LEVEL NOT MARKET-LEVEL BY DEFAULT: each user's page is independently computed, no shared resource between different users' sessions directly. WHEN MARKET-LEVEL BECOMES NECESSARY: if the ranking signal is largely shared across users (popularity/trending, not personalized) it can funnel many different users onto the same few merchants simultaneously, straining real kitchen capacity — a shared resource that leaks into other users regardless of arm — requiring a market-level guardrail layered on top of, not instead of, the session-level primary test.",
+   miniroute:["Zero-sum rank slots","Within-page + feedback loop","User/session (usually)","Standard A/B"],
+   primary:"Order conversion rate (search → order)",
+   guardrail:"New/small merchant visibility (fairness), AOV, session satisfaction",
+   secondary:"CTR by rank position, category diversity",
+   stattest:"User-level: [F2]/logistic regression. Market-level (if aggregate demand-shift matters): WLS + [F5] delta method + cluster SE",
+   samplesize:"[F2] or [F5]+[F3]/[F4] depending on unit chosen",
+   duration:"Sessions needed / daily volume — but feedback-loop reach means short windows understate long-run redistribution",
+   edge:"NEW interference type: rank position is zero-sum (fixed slots, one restaurant's gain = another's loss) — not a shared physical resource. Cold-start problem: new merchants systematically under-ranked regardless of quality — needs a tenure-percentile guardrail cut."},
+
+  {n:12, title:"Sponsored Ad Placement for Merchants", method:"zerosum", tag:"m-zerosum", route:"zerosum",
+   hyp:"Introducing paid sponsored placements increases ad revenue without degrading organic conversion or relevance enough to hurt long-term trust/retention.",
+   why:"NO switchback — same zero-sum structural type as Case 11, not a shared physical resource. Ad slots are fixed inventory per page; the interference (organic results displaced by ads) happens WITHIN one user's session, not across users. No shared dasher/merchant resource is being contested between arms, so a plain user/session-level A/B (ads on/off, or density A/B) correctly contains it. WHY SESSION-LEVEL NOT SWITCHBACK/DiD: no shared resource exists between different users' sessions to necessitate blocking, and session volume is effectively unlimited, so the simplest valid design wins — the real risk here (long-term trust erosion) is a TIME-HORIZON problem for the guardrail metric, not a randomization-unit problem, so it's solved by watching retention over a longer window, not by changing the unit of randomization.",
+   miniroute:["Zero-sum ad slots","Within-page displacement","User/session","Standard A/B"],
+   primary:"Ad revenue per session, NETTED against organic conversion lost (one merged metric, not two competing ones)",
+   guardrail:"Overall session conversion rate, repeat usage/retention, search relevance score",
+   secondary:"Ad CTR, cost-per-click, organic-vs-sponsored order share",
+   stattest:"[F1] on the netted $/session metric, OLS/t-test, no clustering",
+   samplesize:"[F1] directly",
+   duration:"Fast for the revenue metric (high session volume) — but retention guardrail needs weeks-to-months, state BOTH durations separately",
+   edge:"CRITICAL: long-term trust erosion is slow-forming — ad revenue can look great in 2-4 weeks while real cost (declining trust, users searching elsewhere) only appears in retention data months later. Don't let a fast primary read imply the test is 'done.'"},
+];
+
+const EDGES = [
+ "Marketplace interference / shared-resource contamination — any change touching supply, capacity, or demand can bias a naive user-level test",
+ "Three-sided zero-sum tension — always name who wins, who pays",
+ "Slow-forming behavior vs. short test windows — retention/churn/trust often outlast a standard test; state as an explicit limitation",
+ "Aggregation masking heterogeneity — city-wide averages hide local/segment failures; ask if a slice matters more",
+ "Novelty and habituation effects — don't trust week-1 results too heavily",
+ "Mobility/leakage across intended boundaries — a resource that can relocate defeats a spatial unit that's too small",
+ "Systemic leaks through shared backend systems (dispatch/ranking) — can't be fixed by resizing zones; needs a structural check",
+ "Zero-sum/structural interference (fixed slots) — usually session-level A/B, watch for feedback loops and fairness guardrails",
+ "Total vs. average confusion — use totals + historical-baseline weighting when volume IS the treatment mechanism",
+ "Endogenous weighting — never weight/control by an in-period, post-treatment variable affected by treatment itself",
+ "Cost-benefit metric splitting — merge cost and benefit into ONE primary metric for whoever's decision is being informed",
+ "SRM at the wrong unit — check at the level actually randomized (blocks), never the outcome-unit level (orders)",
+ "Parallel trends violation (DiD) — match on pre-period TREND, not just level",
+ "Few treated units — prefer Synthetic Control over a single hand-picked control; validate with placebo tests",
+ "Concurrent experiment collision — check the experiment registry; use orthogonal layers (shared salt = same layer)",
+ "Rollout ≠ test population at scale — stage rollout with guardrail monitoring; hold a long-term holdout for novelty decay",
+ "Ceiling effects — metrics clustered near their max have little room to show improvement; may need a larger sample or different metric",
+ "Multiple-comparisons risk — checking several guardrails inflates overall false-positive risk beyond stated per-metric alpha",
+];
+
+let doneSet = new Set();
+let activeMethod = 'all';
+let activeRoute = 'all';
+
+function methodLabel(m){
+  return {switchback:'Switchback', cluster:'Cluster-Randomized', ab:'Standard A/B', did:'DiD / Synthetic', zerosum:'Zero-sum'}[m];
+}
+
+function renderCases(){
+  const q = document.getElementById('search').value.toLowerCase();
+  const list = document.getElementById('caseList');
+  list.innerHTML = '';
+  const filtered = CASES.filter(c=>{
+    const matchesMethod = activeMethod==='all' || c.method===activeMethod;
+    const matchesRoute = activeRoute==='all' || c.route===activeRoute;
+    const text = (c.title+c.hyp+c.primary+c.guardrail+c.secondary+c.edge).toLowerCase();
+    const matchesSearch = !q || text.includes(q);
+    return matchesMethod && matchesRoute && matchesSearch;
+  });
+  filtered.forEach(c=>{
+    const card = document.createElement('div');
+    card.className = 'case-card' + (doneSet.has(c.n)?' done':'');
+    card.innerHTML = `
+      <div class="case-head" onclick="toggleCard(this)">
+        <div class="case-num">${c.n}</div>
+        <div class="method-tag ${c.tag}">${methodLabel(c.method)}</div>
+        <div class="case-title">${c.title}</div>
+        <div class="case-check" onclick="event.stopPropagation(); toggleDone(${c.n})">${doneSet.has(c.n)?'✓':''}</div>
+        <div class="chevron">▶</div>
+      </div>
+      <div class="case-body"><div class="case-inner">
+        <div class="mini-route">
+          ${c.miniroute.map((m,i)=> `<span class="mini-node">${m}</span>` + (i<c.miniroute.length-1?'<span class="mini-arrow">→</span>':'')).join('')}
+        </div>
+        <div class="sec-label">Hypothesis</div>
+        <div class="hyp-box">${c.hyp}</div>
+        <div class="sec-label">Why Switchback (or not)</div>
+        <div class="why-box">${c.why}</div>
+        <div class="sec-label">Metrics</div>
+        <div class="metric-grid">
+          <div class="metric-col p"><h4>Primary</h4><p>${c.primary}</p></div>
+          <div class="metric-col g"><h4>Guardrail</h4><p>${c.guardrail}</p></div>
+          <div class="metric-col s"><h4>Secondary</h4><p>${c.secondary}</p></div>
+        </div>
+        <div class="sec-label">Statistical Test</div>
+        <div class="formula-line">${c.stattest}</div>
+        <div class="sec-label">Sample Size</div>
+        <div class="formula-line">${c.samplesize}</div>
+        <div class="sec-label">Duration</div>
+        <div class="formula-line">${c.duration}</div>
+        <div class="sec-label">Edge Cases</div>
+        <div class="edge-note">${c.edge}</div>
+      </div></div>
+    `;
+    list.appendChild(card);
+  });
+  updateProgress();
+}
+
+function toggleCard(headEl){
+  headEl.parentElement.classList.toggle('open');
+}
+function toggleDone(n){
+  if(doneSet.has(n)) doneSet.delete(n); else doneSet.add(n);
+  renderCases();
+}
+function updateProgress(){
+  document.getElementById('doneCount').textContent = doneSet.size;
+  document.getElementById('progText').textContent = doneSet.size + '/12';
+  document.getElementById('progFill').style.width = (doneSet.size/12*100)+'%';
+}
+
+document.getElementById('search').addEventListener('input', renderCases);
+document.querySelectorAll('.chip').forEach(chip=>{
+  chip.addEventListener('click', ()=>{
+    document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+    chip.classList.add('on');
+    activeMethod = chip.dataset.method;
+    renderCases();
+  });
+});
+document.querySelector('.chip[data-method="all"]').classList.add('on');
+
+document.querySelectorAll('.route-node').forEach(node=>{
+  node.addEventListener('click', ()=>{
+    document.querySelectorAll('.route-node').forEach(n=>n.classList.remove('active'));
+    node.classList.add('active');
+    activeRoute = node.dataset.filter;
+    document.querySelector('.tab[data-tab="cases"]').click();
+    renderCases();
+  });
+});
+
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-'+tab.dataset.tab).classList.add('active');
+  });
+});
+
+function renderQuiz(){
+  const list = document.getElementById('quizList');
+  list.innerHTML = '';
+  CASES.forEach(c=>{
+    const card = document.createElement('div');
+    card.className = 'quiz-card';
+    card.innerHTML = `
+      <div class="quiz-q">${c.n}. ${c.title}</div>
+      <div class="quiz-meta">${c.hyp}</div>
+      <button class="reveal-btn" onclick="this.closest('.quiz-card').classList.add('revealed')">Reveal answer</button>
+      <div class="quiz-answer">
+        <div class="mini-route">
+          ${c.miniroute.map((m,i)=> `<span class="mini-node">${m}</span>` + (i<c.miniroute.length-1?'<span class="mini-arrow">→</span>':'')).join('')}
+        </div>
+        <div class="sec-label">Why Switchback (or not)</div>
+        <div class="why-box" style="margin-bottom:12px;">${c.why}</div>
+        <div class="metric-grid">
+          <div class="metric-col p"><h4>Primary</h4><p>${c.primary}</p></div>
+          <div class="metric-col g"><h4>Guardrail</h4><p>${c.guardrail}</p></div>
+          <div class="metric-col s"><h4>Secondary</h4><p>${c.secondary}</p></div>
+        </div>
+        <div class="sec-label">Sample Size / Duration</div>
+        <div class="formula-line">${c.samplesize}\n${c.duration}</div>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+function renderEdges(){
+  const ul = document.getElementById('edgeList');
+  ul.innerHTML = EDGES.map(e=>`<li>${e}</li>`).join('');
+}
+
+renderCases();
+renderQuiz();
+renderEdges();
+</script>
+
+</body>
+</html>
