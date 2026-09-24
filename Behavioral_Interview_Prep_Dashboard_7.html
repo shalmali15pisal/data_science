@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Behavioral Interview Prep Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1B2A4A;
+    --ink-soft:#4A5A78;
+    --paper:#F6F3EC;
+    --paper-raised:#FFFFFF;
+    --line:#DDD6C7;
+    --sage:#3F6E68;
+    --sage-soft:#E7EEEC;
+    --clay:#AE6B2C;
+    --clay-soft:#F3E5D2;
+    --gap:#B5442E;
+    --gap-soft:#F6E2DD;
+    --ref:#4A5A9E;
+    --ref-soft:#E7E9F5;
+    --shadow: 0 1px 2px rgba(27,42,74,0.06), 0 4px 14px rgba(27,42,74,0.06);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans',sans-serif;
+    font-size:15px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4{font-family:'Source Serif 4',serif;font-weight:600;margin:0;}
+  code{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.92em;
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:3px;
+    padding:1px 5px;
+  }
+
+  .hero{
+    background:linear-gradient(180deg,#1B2A4A 0%, #223761 100%);
+    color:#F1EEE4;
+    padding:36px 24px 30px;
+    position:relative;
+    overflow:hidden;
+  }
+  .hero::after{
+    content:"";
+    position:absolute;
+    right:-60px; top:-60px;
+    width:280px; height:280px;
+    border:1px solid rgba(241,238,228,0.12);
+    border-radius:50%;
+  }
+  .hero::before{
+    content:"";
+    position:absolute;
+    right:20px; top:40px;
+    width:180px; height:180px;
+    border:1px solid rgba(241,238,228,0.08);
+    border-radius:50%;
+  }
+  .hero-inner{max-width:1180px;margin:0 auto;position:relative;z-index:1;}
+  .hero-eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12.5px;
+    color:#C9A46B;
+    letter-spacing:0.02em;
+    margin-bottom:10px;
+  }
+  .hero h1{font-size:clamp(26px,4vw,34px);color:#FBF9F3;max-width:640px;}
+  .hero p.sub{
+    margin-top:10px;
+    font-size:15.5px;
+    color:#C7CEDD;
+    max-width:640px;
+  }
+  .hero-meta{
+    display:flex; flex-wrap:wrap; gap:10px;
+    margin-top:22px;
+  }
+  .pill{
+    font-size:13px;
+    padding:7px 14px;
+    border-radius:20px;
+    background:rgba(241,238,228,0.08);
+    border:1px solid rgba(241,238,228,0.22);
+    color:#EFEBDD;
+  }
+  .angle-row{
+    display:flex; flex-wrap:wrap; gap:10px;
+    margin-top:18px;
+  }
+  .angle-chip{
+    font-size:13.5px;
+    padding:8px 14px;
+    background:rgba(201,164,107,0.14);
+    border:1px solid rgba(201,164,107,0.5);
+    color:#F0D9AE;
+    border-radius:3px;
+    font-family:'IBM Plex Mono',monospace;
+  }
+  .angle-note{
+    font-size:12.5px;
+    color:#A9B3C7;
+    margin-top:10px;
+    max-width:640px;
+  }
+
+  .layout{
+    max-width:1180px;
+    margin:0 auto;
+    display:grid;
+    grid-template-columns:210px 1fr;
+    gap:0;
+    align-items:start;
+  }
+  nav.tabs{
+    position:sticky; top:0;
+    padding:26px 14px 26px 24px;
+    display:flex; flex-direction:column; gap:4px;
+  }
+  .tab-btn{
+    text-align:left;
+    background:none;
+    border:none;
+    border-left:2px solid transparent;
+    padding:10px 12px;
+    font-family:'IBM Plex Sans',sans-serif;
+    font-size:14px;
+    color:var(--ink-soft);
+    cursor:pointer;
+    border-radius:2px;
+    transition:background .15s, color .15s, border-color .15s;
+  }
+  .tab-btn:hover{background:rgba(27,42,74,0.05);}
+  .tab-btn.active{
+    color:var(--ink);
+    font-weight:600;
+    border-left:2px solid var(--clay);
+    background:var(--paper-raised);
+  }
+  .tab-count{
+    display:inline-block;
+    margin-left:6px;
+    font-size:11px;
+    font-family:'IBM Plex Mono',monospace;
+    color:var(--ink-soft);
+  }
+
+  main{padding:26px 24px 60px 18px;}
+
+  .search-row{
+    display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+    margin-bottom:18px;
+  }
+  #search{
+    flex:1;
+    min-width:180px;
+    padding:10px 14px;
+    border:1px solid var(--line);
+    background:var(--paper-raised);
+    border-radius:4px;
+    font-family:'IBM Plex Sans',sans-serif;
+    font-size:14px;
+    color:var(--ink);
+  }
+  #search:focus{outline:2px solid var(--sage); outline-offset:1px;}
+  .filter-toggle, .expand-toggle{
+    font-size:12.5px;
+    font-family:'IBM Plex Mono',monospace;
+    padding:9px 12px;
+    border:1px solid var(--line);
+    background:var(--paper-raised);
+    border-radius:4px;
+    cursor:pointer;
+    color:var(--ink-soft);
+    white-space:nowrap;
+  }
+  .filter-toggle.active{
+    background:var(--gap-soft);
+    border-color:var(--gap);
+    color:var(--gap);
+  }
+
+  section.panel{display:none;}
+  section.panel.active{display:block;}
+
+  .panel-note{
+    font-size:13.5px;
+    color:var(--ink-soft);
+    background:var(--sage-soft);
+    border-left:3px solid var(--sage);
+    padding:10px 14px;
+    border-radius:3px;
+    margin-bottom:20px;
+  }
+
+  .card{
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    border-radius:6px;
+    margin-bottom:14px;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+  .card-head{
+    display:flex; justify-content:space-between; align-items:flex-start;
+    gap:16px;
+    padding:16px 18px;
+    cursor:pointer;
+  }
+  .card-head:hover{background:rgba(27,42,74,0.015);}
+  .card-title-wrap{flex:1;}
+  .card-title{font-size:17px; font-weight:600; color:var(--ink);}
+  .card-questions{
+    font-size:13px;
+    color:var(--ink-soft);
+    margin-top:8px;
+    line-height:1.5;
+  }
+  .q-label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    font-weight:600;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    color:var(--clay);
+    margin-bottom:6px;
+  }
+  .q-tags{display:flex; flex-wrap:wrap; gap:6px;}
+  .q-tag{
+    font-size:12px;
+    background:var(--clay-soft);
+    color:var(--ink);
+    border:1px solid rgba(174,107,44,0.35);
+    border-radius:12px;
+    padding:4px 10px;
+    line-height:1.4;
+  }
+  .badge{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    padding:3px 8px;
+    border-radius:20px;
+    white-space:nowrap;
+    margin-top:2px;
+    flex-shrink:0;
+  }
+  .badge.built{background:var(--sage-soft); color:var(--sage); border:1px solid rgba(63,110,104,0.35);}
+  .badge.gap{background:var(--gap-soft); color:var(--gap); border:1px solid rgba(181,68,46,0.35);}
+  .badge.ref{background:var(--ref-soft); color:var(--ref); border:1px solid rgba(74,90,158,0.35);}
+  .chevron{
+    color:var(--ink-soft);
+    font-size:13px;
+    margin-left:4px;
+    transition:transform .18s;
+    flex-shrink:0;
+  }
+  .card.open .chevron{transform:rotate(90deg);}
+
+  .card-body{
+    max-height:0;
+    overflow:hidden;
+    transition:max-height .3s ease;
+  }
+  .card.open .card-body{max-height:8000px;}
+  .card-body-inner{
+    padding:4px 18px 22px;
+    border-top:1px solid var(--line);
+  }
+
+  .principle{
+    font-style:italic;
+    color:var(--ink);
+    font-size:14.5px;
+    padding:14px 16px;
+    background:var(--clay-soft);
+    border-left:3px solid var(--clay);
+    border-radius:3px;
+    margin:16px 0;
+  }
+
+  .star-stack{display:flex; flex-direction:column; gap:12px; margin-bottom:16px;}
+  .star-block{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:14px 16px;
+  }
+  .star-label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    color:var(--sage);
+    margin-bottom:7px;
+    font-weight:500;
+    letter-spacing:0.02em;
+  }
+  .star-text{font-size:14px; color:var(--ink);}
+  .star-text p{margin:0 0 10px 0;}
+  .star-text p:last-child{margin-bottom:0;}
+  .star-text ul{margin:6px 0 0 0; padding-left:18px;}
+  .star-text li{margin-bottom:6px;}
+
+  .learning{
+    font-size:14.5px;
+    padding:14px 16px;
+    background:var(--sage-soft);
+    border-left:3px solid var(--sage);
+    border-radius:3px;
+    margin-bottom:16px;
+  }
+  .learning .star-label{color:var(--sage);}
+
+  .meta-row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+  }
+  @media(max-width:820px){.meta-row{grid-template-columns:1fr;}}
+  .meta-block{
+    font-size:13px;
+    color:var(--ink-soft);
+    padding:12px 13px;
+    border:1px dashed var(--line);
+    border-radius:4px;
+  }
+  .meta-block .star-label{color:var(--ink-soft);}
+  .meta-block ul{margin:0; padding-left:16px;}
+  .meta-block li{margin-bottom:5px;}
+
+  .tbd{color:var(--gap); font-style:italic;}
+
+  .field-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-top:6px;
+  }
+  @media(max-width:820px){.field-grid{grid-template-columns:1fr;}}
+  .field{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:11px 13px;
+  }
+  .field .star-label{color:var(--ink-soft);}
+  .field-text{font-size:13.5px;}
+
+  .concept-body{font-size:14px; padding-top:14px;}
+  .concept-body p{margin:0 0 12px 0;}
+  .concept-body ul{margin:0 0 12px 0; padding-left:20px;}
+  .concept-body li{margin-bottom:6px;}
+  .flow-steps p{font-size:13.5px;}
+
+  .flow-diagram{
+    width:100%;
+    height:auto;
+    display:block;
+    margin:16px 0 20px;
+  }
+
+  table.concept-table{
+    width:100%;
+    border-collapse:collapse;
+    margin:10px 0 18px;
+    font-size:13px;
+  }
+  table.concept-table th, table.concept-table td{
+    border:1px solid var(--line);
+    padding:9px 11px;
+    text-align:left;
+    vertical-align:top;
+  }
+  table.concept-table th{
+    background:var(--sage-soft);
+    color:var(--ink);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    font-weight:500;
+  }
+  table.concept-table tr:nth-child(even) td{background:rgba(27,42,74,0.015);}
+
+  footer{
+    max-width:1180px; margin:0 auto;
+    padding:20px 24px 50px 18px;
+    font-size:12px;
+    color:var(--ink-soft);
+    border-top:1px solid var(--line);
+  }
+
+  @media(max-width:760px){
+    .layout{grid-template-columns:1fr;}
+    nav.tabs{
+      position:sticky; top:0; z-index:5;
+      flex-direction:row; overflow-x:auto;
+      background:var(--paper);
+      padding:12px 16px;
+      border-bottom:1px solid var(--line);
+      gap:6px;
+    }
+    .tab-btn{border-left:none; border-bottom:2px solid transparent; white-space:nowrap;}
+    .tab-btn.active{border-left:none; border-bottom:2px solid var(--clay);}
+    main{padding:20px 16px 60px;}
+    table.concept-table{font-size:12px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">PERSONAL REFERENCE — NOT TIED TO ANY SINGLE COMPANY</div>
+    <h1>Behavioral Interview Prep Dashboard</h1>
+    <p class="sub">A living story bank for behavioral rounds — built once, reused every time. Structured on the Principle &rarr; Story &rarr; Implication and Tension &rarr; Decision &rarr; Lesson frameworks, with full unabridged detail so timing can be adjusted live in the room.</p>
+    <div class="hero-meta">
+      <span class="pill">Format: STAR + Principle/Learning</span>
+      <span class="pill">Level: Staff / Senior</span>
+      <span class="pill">Use: Full detail — trim live as needed</span>
+    </div>
+    <div class="angle-row">
+      <span class="angle-chip">Executive Partner &amp; Influencer</span>
+      <span class="angle-chip">Outcome-Focused Prioritization</span>
+      <span class="angle-chip">Experimentation Culture Builder</span>
+    </div>
+    <div class="angle-note">These 3 angles are the current default throughline. Before any specific interview, re-check them against that role's job description — the underlying stories stay the same, but which 2&ndash;3 angles you lead with can shift per employer.</div>
+  </div>
+</div>
+
+<div class="layout">
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="behavioral">Behavioral Q&amp;A <span class="tab-count" id="count-behavioral"></span></button>
+    <button class="tab-btn" data-tab="models">ML Model Projects <span class="tab-count" id="count-models"></span></button>
+    <button class="tab-btn" data-tab="exploratory">Exploratory Projects <span class="tab-count" id="count-exploratory"></span></button>
+    <button class="tab-btn" data-tab="experimentation">Experimentation Projects <span class="tab-count" id="count-experimentation"></span></button>
+    <button class="tab-btn" data-tab="concepts">ML Concepts Reference <span class="tab-count" id="count-concepts"></span></button>
+    <button class="tab-btn" data-tab="qindex">Question Index <span class="tab-count" id="count-qindex"></span></button>
+  </nav>
+
+  <main>
+    <div class="search-row">
+      <input id="search" type="text" placeholder="Search stories, questions, keywords...">
+      <button class="filter-toggle" id="gapFilter">Show gaps only</button>
+      <button class="expand-toggle" id="expandAll">Expand all</button>
+    </div>
+
+    <section class="panel active" id="panel-behavioral">
+      <div class="panel-note">Full, untrimmed versions of every story &mdash; every beat, name, number, and quote gathered so far is kept in here on purpose. In the room, tell whichever slice fits the time you have; this page is the complete source you pull from, not the delivery script.</div>
+      <div id="list-behavioral"></div>
+    </section>
+
+    <section class="panel" id="panel-models">
+      <div class="panel-note">Fill in remaining TBD fields as they get confirmed. Payments Attach and Guided Setup now have real detail &mdash; IES Propensity Model is still a placeholder.</div>
+      <div id="list-models"></div>
+    </section>
+
+    <section class="panel" id="panel-exploratory">
+      <div class="panel-note">Open-ended analyses / investigations that didn't ship a model or run a formal test. The QRS root-cause investigation is the strongest example of this &mdash; it's fully captured in the Behavioral Q&amp;A tab, so it isn't duplicated here.</div>
+      <div id="list-exploratory"></div>
+    </section>
+
+    <section class="panel" id="panel-experimentation">
+      <div class="panel-note">Formal A/B-tested product / GTM strategies. The QRS staged A/B test is fully captured in the Behavioral Q&amp;A tab (Experimentation Culture Builder) &mdash; not duplicated here.</div>
+      <div id="list-experimentation"></div>
+    </section>
+
+    <section class="panel" id="panel-concepts">
+      <div class="panel-note">General technical reference underlying the propensity models in this dashboard &mdash; useful prep for "walk me through your model" or technical-judgment follow-up questions, independent of which specific project is being discussed.</div>
+      <div id="list-concepts"></div>
+    </section>
+
+    <section class="panel" id="panel-qindex">
+      <div class="panel-note">Fast lookup by question type &mdash; when a question comes in, find the category here first to see which built story fits best, rather than searching by story name. One flagged gap (insight not adopted into the roadmap) still needs real material.</div>
+      <div id="list-qindex"></div>
+    </section>
+  </main>
+</div>
+
+<footer>
+  Personal interview prep reference — not for distribution. Framework adapted from the Prepfully behavioral course (Principle &rarr; Story &rarr; Implication; Tension &rarr; Decision &rarr; Lesson). Update this file directly as new stories, models, and experiments accumulate across roles.
+</footer>
+
+<script>
+const DATA = {"behavioral": [{"title": "Opener — Tell Me About Yourself", "gap": false, "questions": "Tell me about yourself / walk me through your background", "principle": "I'm someone who's most energized by finding the gap between what data says is happening and what leadership assumes is happening — and then not just diagnosing it, but driving the fix through to business impact, even when that means working across systems and teams I don't own.", "situation": "<p>Not a traditional STAR story — this uses a Principle &rarr; Examples &rarr; Implication structure so it works as a 60&ndash;90 second opener regardless of which company or role I'm interviewing for.<\/p>", "task": "<p>N/A<\/p>", "action": "<p><strong>Examples to anchor on (pick 2&ndash;3 depending on the room):<\/strong><\/p><ul><li>Leading the QuickBooks Recommendation System (QRS) investigation &mdash; catching a silent, revenue-impacting failure that had gone undetected for roughly a year, root-causing it across three systems I didn't own, and driving it to a $3.6M ecosystem revenue recovery.<\/li><li>Building and scaling propensity models (Payments Attach, IES, QB Live Guided Setup) to proactively target customers rather than waiting for organic product discovery.<\/li><li>GTM experimentation work that drove measurable lift in application rate and incremental revenue.<\/li><\/ul>", "result": "<p><strong>Implication (close by connecting to the role):<\/strong> What I'm looking for now is a role where that same instinct &mdash; turning ambiguous, high-stakes business questions into rigorous analysis executives can act on &mdash; is the core of the job, not a side effect of it. Tailor this last line to reference the specific team or mission of whichever company I'm speaking with.<\/p>", "learning": "Sets the frame for the whole interview — everything else I say should trace back to one of the examples mentioned here.", "tested": "First impression, whether I can be concise, whether my narrative maps to the role I'm interviewing for.", "crossqs": ["\"What specifically drew you to this company/role?\" — always have a real, specific, freshly-researched answer ready; don't let this go generic."]}, {"title": "Executive Partner & Influencer", "gap": false, "questions": "Influenced a VP/exec-level decision · handled pressure or blame from leadership · managed up · high-visibility, high-pressure project · new to a team and had to build credibility fast", "principle": "In high-visibility, cross-functional work, being right isn't enough — you have to communicate your process transparently enough that people trust the answer before it's even finished.", "situation": "<p>I was new to the QuickBooks Recommendation System (QRS) team, running experiment reads for a new version of the recommendation model. QRS shows targeted, contextual product recommendations to QuickBooks customers at specific access points inside the product &mdash; cross-sell, upsell, first-time-use, and retention plays across the QuickBooks ecosystem. The AI team had made significant improvements to the model itself, but when I reviewed the experiment reads, ecosystem revenue was flat. That didn't add up &mdash; a materially better model should have moved the number.<\/p>", "task": "<p>I decided to dig into why, even though root-causing this wasn't formally my assigned task yet &mdash; it was my own read of the data that something didn't make sense. The first thing I noticed doing this investigation was that there was no formal system actually monitoring how QRS was performing in production &mdash; no impressions tracking, no share-of-voice reporting. So before I could even diagnose the flat revenue, I had to define the metric and build the monitoring myself.<\/p><p>Once that monitoring existed, I found the real story: <strong>QRS impression share<\/strong> &mdash; defined as what percentage of total impressions on QRS-eligible access points were actually driven by QRS-recommended offers &mdash; had dropped from roughly <strong>70&ndash;80% down to 25&ndash;30%<\/strong>. A collapse of that size had gone completely uncaught. This mattered a lot: QRS offers were proven to drive meaningfully higher conversion and ecosystem revenue than the non-QRS recommendations, which acted in silos without the same contextual targeting. I flagged this to my VP immediately.<\/p>", "action": "<p>This kicked off a tiger team, with real pressure from VP-and-above to resolve it fast. The investigation itself was genuinely hard &mdash; this was the first time anyone had tried to debug across three connected systems end-to-end: the <strong>ML model<\/strong>, which fed the <strong>Personalization (PZN) engine<\/strong> that ranked which offers a customer would actually see at login/landing, which in turn pulled from the <strong>Campaign Manager<\/strong> where the underlying offers were configured. I had to collaborate cross-functionally with the AI team, the Product/Design teams for both PZN and Campaign Manager, and Marketing Ops, just to understand how data flowed between these systems and where it lived in the data lake &mdash; I hadn't built any of these systems myself. I set up weekly follow-up meetings with this working group to keep everyone current on findings and rule out hypotheses that weren't panning out.<\/p><p>Midway through, there was a real setback: I was blocked on basic data access (I didn't initially know which tables held the relevant data, then had to formally request access), and there was no documentation for how these systems interacted &mdash; I was reasoning through undocumented logic for the first time, essentially building the map as I went. During this period, <strong>Marketing Ops escalated directly to the VP that &ldquo;we're blocked because DS hasn't delivered the analysis,&rdquo;<\/strong> and I was called out by name in that meeting. Rather than getting defensive, I laid out exactly where I was stuck &mdash; no table access initially, no documentation, first-time reasoning through undocumented cross-system logic &mdash; and asked for a specific one-week extension instead of vaguely saying &ldquo;I'm working on it.&rdquo; My manager also attended that meeting and was ready to back me up if needed, though the explanation held on its own.<\/p><p>The investigation eventually surfaced <strong>five distinct root causes<\/strong>:<\/p><ul><li><strong>Inventory gap:<\/strong> access points had grown from 15 to 27 over the year, but QRS offer inventory hadn't scaled with it &mdash; new access points simply had no QRS offers built for them. There was also a shift in which access points carried the most traffic.<\/li><li><strong>Offer staleness:<\/strong> QRS enforces an impression cap &mdash; if a customer dismisses an offer 3 times, they stop seeing it until it's refreshed. These caps were never being reset, so customers who'd already hit the cap were permanently excluded from seeing that offer again.<\/li><li><strong>Outdated Next Best Action (NBA) logic:<\/strong> as the business evolved, some recommended actions pointed to product features we no longer supported, while newer features had no NBA logic covering them at all.<\/li><li><strong>Offer prioritization misalignment:<\/strong> there was no defined process governing what could run above QRS on eligible access points. Several product-segment teams were running their own campaigns at a priority higher than QRS &mdash; sometimes on offers that were relevant in general but wrong for that specific moment. The clearest example: on the Payroll landing page, QRS recommended &ldquo;add a new employee&rdquo; &mdash; the highest-leverage first-time-use action for a new trial customer &mdash; while the product segment team was instead cross-selling Capital. For a new trial customer, a better first-time-use experience drove better conversion, so the &ldquo;add employee&rdquo; recommendation was actually the more valuable one to surface, but it was being crowded out.<\/li><li><strong>System failure:<\/strong> the PZN system itself was failing to pick up a subset of model-recommended actions and was defaulting to non-QRS offers instead.<\/li><\/ul><p>I presented the full findings &mdash; with estimated impact sizing for each cause &mdash; along with a phased solution plan to leadership and the cross-functional team: the VP sponsoring QRS, the Director of AI, the Director of Data Science, and the managers and staff from each team involved.<\/p>", "result": "<p>The VP extended the timeline by a week on the spot after hearing the specifics of what was blocking me, and Marketing Ops never escalated again after that meeting.<\/p><p>On the fix side, we sequenced solutions given constrained engineering and marketing-ops bandwidth (see the Outcome-Focused Prioritization story for the sequencing logic in detail). The first wave &mdash; refreshing stale offers/resetting impression caps, and building new offers for the newly created access points &mdash; was A/B tested and took impression share from 25% to 40% (new offers) and 25% to 60% (refreshed offers). The second wave &mdash; offering the 2nd/3rd ranked recommendation when a customer dismissed the first, plus a full NBA refresh built from a correlation analysis of which actions actually drove cross-sell/upsell/first-time-use/retention &mdash; pushed impression share to <strong>85%<\/strong> and drove <strong>$3.6M in incremental ecosystem revenue<\/strong>. I also stood up a governance process (with the Lifecycle Marketing Manager team) requiring VP-level approval for any campaign wanting to run above QRS priority going forward, so the prioritization-misalignment cause wouldn't silently recur.<\/p>", "learning": "What stuck with me from the moment I was blamed in front of leadership: in cross-functional, high-visibility work, proactively communicating status — even incomplete status — to leadership is as important as the analysis itself. It stops other people from filling the narrative gap for you before you can.", "tested": "Composure under executive scrutiny, ability to manage up, whether blame is addressed structurally vs. personally/defensively, credibility-building as a newer team member, technical depth across unfamiliar systems, ability to run a multi-team investigation.", "crossqs": ["Why didn't you flag timeline risk before Marketing Ops escalated it themselves?", "What would you do differently next time to avoid the escalation altogether?", "Was the VP's trust in you already established, or did you have to earn it in that exact moment — given you were new?", "How did you keep five workstreams (5 root causes) moving in parallel without things falling through the cracks?", "What was the actual mechanism by which the PZN system was failing to pick up recommended actions — was that ever fully root-caused, or just worked around?"]}, {"title": "Outcome-Focused Prioritization", "gap": false, "questions": "Prioritize under resource constraints · decision-making with incomplete resources/time · speed vs. thoroughness trade-off · sequencing a multi-part fix", "principle": "Under time pressure, sequence fixes by what you can test and prove fastest — not just by root-cause severity. It builds trust and momentum while the harder fixes are still being built.", "situation": "<p>Once the QRS investigation had surfaced five distinct root causes behind the impression-share collapse, I didn't have unlimited engineering or marketing-ops bandwidth to fix all five simultaneously, and the VP wanted visible progress fast given the revenue impact.<\/p>", "task": "<p>I had to decide what to fix first &mdash; not based on which cause was theoretically the biggest contributor, but on what we could actually test and prove quickly, to build credibility and momentum while the harder, slower fixes were still being built.<\/p>", "action": "<p>The AI team needed meaningfully more time to rebuild the second/third-recommendation logic and to run the correlation analysis behind the NBA refresh &mdash; those weren't going to be ready soon. Rather than wait to bundle everything into one big release, I moved on the two causes I could fix and test immediately: <strong>inventory expansion<\/strong> (creating new QRS offers for the newly added access points) and <strong>offer refresh<\/strong> (resetting impression caps on stale offers). I structured this as a proper A/B test &mdash; Control (existing condition), Treatment 1 (new offers for new access points), Treatment 2 (refreshed/reset offers) &mdash; with impression share and ecosystem revenue as the primary metrics, so we'd have a clean, defensible read on which lever mattered more before committing further engineering time to either one.<\/p>", "result": "<p>Treatment 1 lifted impression share from 25% to 40%. Treatment 2 lifted it from 25% to 60% &mdash; meaningfully larger, which told us where to lean going forward. This gave leadership a credible, quantified early win while the harder fixes (second/third recommendation logic, NBA refresh) were still in flight. When those landed later, combined impression share reached 85%, and the full set of fixes drove $3.6M in incremental ecosystem revenue.<\/p>", "learning": "Under time pressure, sequence fixes by what you can test and prove fastest, not just by root-cause severity — it builds trust and buys you room to deliver the harder fixes properly instead of rushing them.", "tested": "Judgment under resource constraints, ability to justify a sequencing decision with reasoning (not just picking the easy wins), comfort defending a decision that consciously delayed some fixes.", "crossqs": ["What was the risk of running fixes sequentially instead of all at once — did you lose overall time by staging it?", "How exactly did you decide inventory/cap fixes were higher priority to test first than the NBA refresh?", "Did anyone push back on deprioritizing the second/third-recommendation logic, given it ended up being a large piece of the final impact?", "How did you avoid Treatment 1 and Treatment 2 contaminating each other's results?"]}, {"title": "Experimentation Culture Builder", "gap": false, "questions": "Experimental design approach · using data to guide a resourcing/investment decision · causal inference / isolating impact · designing a test under real organizational constraints", "principle": "A good experiment shouldn't just prove impact happened — it should answer the next decision you need to make.", "situation": "<p>Before any of this investigation started, there was no monitoring system and no clean, agreed definition of QRS performance at all. Before I could test any fix, I first had to define what &ldquo;impression share&rdquo; meant precisely and build a defensible, instrumented baseline from scratch &mdash; this is what originally surfaced the 70&ndash;80% &rarr; 25&ndash;30% collapse.<\/p>", "task": "<p>Once I had root-caused the drop to five distinct causes, I needed to design a test that wouldn't just confirm something was broken &mdash; it needed to tell us <em>which specific fix<\/em> mattered most, since multiple root causes were competing for the same limited engineering and marketing-ops resources, and leadership needed to know where to invest next, not just that revenue was recoverable in theory.<\/p>", "action": "<p>Instead of bundling every fix into one release and testing it all at once &mdash; which would have told us the group of fixes worked, but not which one drove the result &mdash; I ran a staged design: <strong>Control<\/strong> (existing condition), <strong>Treatment 1<\/strong> isolating inventory expansion (new offers for newly created access points) on its own, and <strong>Treatment 2<\/strong> isolating offer refresh (resetting stale impression caps) on its own. Impression share and ecosystem revenue were held constant as the primary metrics across both treatments so the results were directly comparable, and I made sure the analysis kept the two levers cleanly separated rather than confounded.<\/p>", "result": "<p>The design showed offer refresh alone (Treatment 2: 25% &rarr; 60%) had roughly 1.5x the impact of inventory expansion alone (Treatment 1: 25% &rarr; 40%) &mdash; which gave leadership a clear, evidence-based answer on where to prioritize further engineering investment, instead of funding both equally on instinct. Combined with the later NBA refresh and second/third-recommendation-logic fixes (once the AI team had bandwidth), the full body of tests drove impression share to 85% and $3.6M in incremental ecosystem revenue.<\/p>", "learning": "This reinforced something I now build into every experiment I design: a good test shouldn't just prove impact happened — it should be structured so it answers the next resourcing or prioritization decision, not just the current hypothesis.", "tested": "Statistical/causal rigor, understanding of why you isolate variables rather than bundle fixes, comfort discussing experimental-design specifics (randomization, sample size, attribution) under follow-up questioning.", "crossqs": ["How did you ensure Treatment 1 and Treatment 2 weren't contaminating each other — was randomization done at the customer level, session level, or access-point level? (Confirm this precisely before any interview where experimentation depth is likely to be probed.)", "What was the sample size and test duration for each treatment? (Have a real or reasonably precise number ready.)", "How did you attribute the $3.6M specifically to these tests versus other things happening simultaneously in the business? Was this an extrapolated lift, or actual observed incremental revenue?", "Did you run any guardrail/secondary metrics alongside impression share and revenue (e.g., customer complaints, unsubscribe/dismiss rates)?"]}, {"title": "Difficult Stakeholder / Offer-Priority Conflict", "gap": false, "questions": "Difficult stakeholder · handling resistance/conflict · a priority list or process wasn't being followed (this is about the offer-priority mechanism on a page, distinct from personal sprint/task prioritization — see that story separately)", "principle": "When data alone doesn't get full alignment because you're up against someone else's incentives, don't just keep pushing — build a structural process and get executive backing so the resolution outlives the one conversation.", "situation": "<p>As part of the same QRS investigation, I found two other campaigns consistently running at a priority above QRS on shared access points, even when QRS's recommendation was clearly more relevant to the customer in that moment:<\/p><ul><li><strong>Insights Repository<\/strong> &mdash; a personalization campaign owned by another Analytics team. It personalized message content (e.g., &ldquo;you added 5 employees, you should attach Payroll&rdquo;) but didn't account for the customer's actual propensity to act at that moment &mdash; so a customer who was technically eligible for Payroll but far more likely to convert on attaching Payments or adding a bank would still see the Payroll message, because Insights Repository outranked QRS.<\/li><li><strong>Capital cross-sell campaign<\/strong> &mdash; owned by a Marketing team, running on the &ldquo;add employee&rdquo; access point. That team was optimizing purely for Capital application volume, not ecosystem-wide impact &mdash; so a customer who'd just added an employee and purchased Payroll (and for whom running payroll was the clearly relevant next action) would instead see a Capital cross-sell offer.<\/li><\/ul>", "task": "<p>I needed both teams to either lower their campaign's priority below QRS, or use QRS's recommended action as a targeting input rather than overriding it outright. Neither team wanted to do that &mdash; they were worried it would shrink their own impression share and directly hurt the metrics they were measured on (Capital's application numbers, the Analytics team's personalization engagement).<\/p>", "action": "<p>I went to both teams directly with data first. Specifically, I explained: (1) QRS has a 3-strike impression cap, so once a customer dismisses an offer 3 times it rotates out &mdash; meaning inventory naturally frees up over time rather than being permanently locked to QRS; (2) there were other access points not enabled for QRS at all that were highly contextually relevant to their specific products, which they could target instead without competing with QRS; and (3) showing an offer that isn't relevant to the customer in that moment isn't a neutral outcome &mdash; it's a wasted impression with no conversion, which hurts everyone's numbers and degrades the customer experience.<\/p><p>That got partial buy-in but not full alignment &mdash; both teams were still hesitant to concede default priority. Rather than let it stall in back-and-forth, I put together a decision doc, collaborating with the leads on the QRS team, laying out the business-impact case (the VP was already aware, from my earlier analysis, that non-targeted impressions were causing measurable revenue loss). I brought that doc to the VP for alignment and approval. Note: &ldquo;LLM&rdquo; here refers to the <strong>Lifecycle Marketing Manager<\/strong> team I partnered with to help formalize the process, not a language model.<\/p>", "result": "<p>The VP approved the proposal, and it became a formal, binding governance process: any campaign wanting to run at a priority above QRS on a shared access point now has to go through the group manager under the VP, with a written justification and business-impact case. Both teams complied once it was approved, even though they weren't thrilled about it &mdash; there was some lingering friction, but no further escalation. This closed one of the five root causes and contributed directly to impression share recovering to 85%.<\/p>", "learning": "When data alone doesn't resolve a conflict rooted in competing incentives, escalate structurally — not emotionally — to get lasting executive backing, so the resolution outlives the one conversation and doesn't quietly regress later.", "tested": "Influence without authority, constructive escalation vs. going over people's heads, understanding and addressing the other side's actual incentives (not just asserting you're right), comfort building formal process/governance.", "crossqs": ["Did you consider any compromise short of a full governance/approval process — e.g., a bilateral agreement between just the two teams first?", "How did you handle the lingering friction after the teams complied but weren't happy about it?", "What was your plan B if the VP had said no to the governance process?", "How do you distinguish 'my analysis is right, they just don't like it' from a legitimate business concern on their side? Did the teams ever raise a valid point that changed your approach?"]}, {"title": "Task / Sprint Prioritization (day-to-day work prioritization)", "gap": false, "questions": "How do you prioritize your own work / tasks during sprint planning · competing stakeholder asks · how do you decide what to work on when everything feels urgent — distinct from the offer-priority story above, which is about a product/business mechanism, not personal task management", "principle": "Sprint planning is a starting plan, not a fixed contract — in practice, priorities shift mid-sprint, and pretending they won't isn't realistic.", "situation": "<p>This is a repeatable framework rather than a single incident, though the QRS root-cause sequencing (see Outcome-Focused Prioritization) is my clearest concrete example of it in action.<\/p>", "task": "<p>When a new ask comes in mid-sprint, I evaluate it on three things: (1) the business impact of acting now vs. later, (2) the effort required relative to what's already committed, and (3) whether it's coming from senior leadership with genuine urgency behind it &mdash; though I try to be careful that this third factor raises the priority of the <em>conversation<\/em>, not automatically the priority of the <em>task<\/em>. I'll still ask what outcome the requester actually needs and by when, since that conversation sometimes reveals it can wait after all.<\/p>", "action": "<p>Based on that evaluation, I'll re-rank what's in flight &mdash; but I make that trade-off visible rather than silent. I communicate the change to the squad and to whichever stakeholders' work is being deprioritized, so nobody is surprised later and everyone understands the reasoning behind the call. I also try to timebox re-prioritization discussions to avoid thrashing: if something isn't truly urgent, it goes into the next sprint rather than disrupting the current one, even if someone would prefer it sooner.<\/p>", "result": "<p>This keeps re-prioritization from becoming reactive &mdash; rewarding whoever escalates loudest &mdash; while still staying responsive to genuinely urgent, high-impact asks. The QRS example is the clearest instance: I sequenced the fastest-to-test fixes first while the AI team was still building the harder ones, rather than waiting to bundle everything into one release.<\/p>", "learning": "A repeatable prioritization framework protects both business responsiveness and team trust — the communication of the trade-off matters as much as the trade-off decision itself.", "tested": "Repeatable decision framework (not ad hoc reaction), communication discipline when priorities shift, judgment on when a leadership ask is genuinely urgent vs. simply loud.", "crossqs": ["If a senior leader's ask isn't actually high-impact, do you push back, or do it anyway because of who asked?", "Tell me about a time a stakeholder whose task got deprioritized pushed back — how did you handle that conversation specifically?", "How do you avoid this becoming reactive — constantly re-shuffling based on whoever escalates loudest?", "Give a routine, non-crisis example of this — the QRS story is high-stakes; is there a smaller, more ordinary example of competing sprint asks? (Still open — worth building a lighter backup example.)"]}, {"title": "Proactive Model Health Audit — Anticipating Failure Before It Happened", "gap": false, "questions": "Anticipated a problem before it happened / got ahead of a risk proactively · influenced a roadmap with an insight · scaled your impact by coaching others · proactive ownership beyond your assigned scope", "principle": "Good ownership isn't just fixing what's broken — it's asking \"what else is probably broken the same way\" before someone else finds out the hard way.", "situation": "<p>While refreshing the Payments Attach model &mdash; itself triggered by the QRS impression-test finding that the existing model was stale &mdash; I realized the same staleness risk almost certainly existed elsewhere. Nobody had ever audited the full set of models feeding QRS's recommended actions; the Payments model just happened to be the one that got caught first.<\/p>", "task": "<p>I expanded scope beyond my own assigned model and proactively audited every model feeding QRS &mdash; nine in total: Payments attach (new and existing customers), Payroll attach, Payroll first-time-use, Payroll retention, QB Live attach, QB Live retention, and QBO retention (new-signup conversion and existing customers).<\/p>", "action": "<p>I built a structured audit framework &mdash; model name, owner, days since last refresh, model type, accuracy, whether it had been migrated to our in-house model-building/deployment platform (AI Workbench, or AIW), key features, associated recommended actions, output data tables, and the most recent ARPC (average revenue per customer) for that product &mdash; and worked cross-functionally with each owning team to fill it in.<\/p><p>The audit surfaced real risk: several models were rule-based rather than ML, some were significantly outdated (both Payments models, Payroll attach, and QBO retention among them), and several hadn't been migrated to AIW at all. From this, I defined three action items: (1) refresh the old models, (2) rebuild the rule-based ones as proper ML models, (3) migrate everything onto AIW.<\/p><p>Getting this prioritized wasn't automatic &mdash; I had to sell it onto teams' existing roadmaps for work that hadn't broken yet. The Payroll team was easy to convince since they were already seeing softness in Payroll applications and could see the model as the likely fix. The Payments team was harder &mdash; they had no bandwidth for a full quarter &mdash; so I took that refresh on myself rather than let it stall. I worked through similar prioritization conversations with the other segment teams. Once I had real timelines from each team, I grouped the changes into a quarterly release cadence, worked with the PM to formally add it to the roadmap across the next two quarters, and coordinated with the AI team so the refreshed models shipped together in a bundled release rather than trickling out separately. I also ran several training sessions coaching the product segment teams on how to build and deploy models on AIW themselves, so they could self-serve going forward instead of depending on me.<\/p>", "result": "<p>The bundled release of refreshed models drove an incremental <strong>$2M lift in ecosystem revenue<\/strong>, primarily from the Payments and Payroll models.<\/p>", "learning": "Fixing the model in front of you isn't the finish line — auditing adjacent systems for the same failure mode catches problems before they cost the business the way the original one did. Teaching other teams to self-serve on the new platform multiplies that impact further, instead of staying the bottleneck for every future refresh.", "tested": "Proactive ownership beyond assigned scope, systems-level thinking, influence without authority to get onto other teams' roadmaps, coaching/multiplying others, program coordination across multiple teams and a multi-quarter timeline.", "crossqs": ["How did you prioritize across 9 models given limited bandwidth on both your side and each team's side?", "You took on the Payments team's refresh yourself on top of your own scope — how did you manage that workload?", "The $2M was from a bundled release — how would you answer if asked to attribute impact to a specific model rather than the group? (Be ready to say honestly that isolating it cleanly would require unbundling the release, which was a deliberate trade-off for speed.)", "Did every team fully complete their piece (refresh / rebuild / AIW migration), or is some of this still in progress?"]}, {"title": "Payroll Forecast Recovery — Proactive Multi-Lever Fix Before Peak Season", "gap": false, "questions": "Anticipated a problem before it happened / caught a trend early from routine reporting · ran multiple parallel experiments under time pressure · made a deliberate speed-vs-polish trade-off · cross-functional execution", "principle": "Catching a negative trend in the data early only matters if you act before the highest-stakes window arrives — waiting for peak season to prove the problem would have been too late to fix it in time.", "situation": "<p>While doing routine business reporting for the Payroll team in December, I noticed we'd missed the exec-level forecast for two consecutive months (October and November), and December was trending the same way &mdash; we were tracking at roughly an <strong>85 index to forecast<\/strong>. This mattered a lot because January through April is our peak signup season for Payroll, and most of the year's signups happen in that window.<\/p>", "task": "<p>Rather than wait to see if the trend corrected itself, or wait for peak season to reveal the full damage, I started an exploratory analysis to find real levers to close the gap before peak season hit.<\/p>", "action": "<p>I found and tested three separate opportunities:<\/p><ol><li><strong>Early-exposure gap:<\/strong> customer login rates drop drastically after the first 3 days of QBO signup, but QRS's Payroll cross-sell recommendations didn't start surfacing until day 10, due to a cold-start limitation in the model. That meant we were losing exposure to customers during their most active early window. I proposed showing Payroll cross-sell offers at highly contextual access points earlier in the funnel. While working this, I also noticed Payments had the same gap &mdash; missing cross-sell exposure in the first 90 days &mdash; and since Payments and Payroll are the two highest contributors to ecosystem revenue, I worked with Marketing Ops and the Marketing Manager to build a joint campaign cross-selling both within the first 10 days of signup.<\/li><li><strong>Funnel drop-off:<\/strong> a funnel analysis of customers clicking an IPD offer through to Payroll signup showed a big drop between landing on the Payroll landing page and reaching the application form &mdash; the page routed people through an \"add employee\" flow and a separate pricing/SKU tab before the actual signup form. The ideal fix was redesigning the landing page, but we didn't have time before peak season, so I proposed a deliberate short-term fix instead: route customers directly to the Payroll application form, skipping the landing page entirely &mdash; a conscious speed-over-polish trade-off given the timeline, not a default shortcut.<\/li><li><strong>Winback:<\/strong> for customers who'd started the Payroll application in the last 3 months but never finished, I set up an email and in-product notification campaign to bring them back to complete it.<\/li><\/ol>", "result": "<p>Levers 1 and 3 were tested in January and rolled out in February; lever 2 was tested in February since it required additional operational work. Independently measured: lever 1 drove a 6% lift in Payroll signups and 5% in Payments attach within the first 7 days of signup; lever 2 drove a 4% lift in Payroll signups; lever 3 drove a 2% lift. Together, these closed the gap enough to bring Payroll back in line with the exec-committed forecast heading into peak season. The early-exposure findings from lever 1 were also adopted directly by the QRS team, who used them to change when Payroll recommendations start surfacing in the model.<\/p>", "learning": "Routine reporting isn't just a status update — it's an early-warning system, if you're willing to treat a two-month trend as a signal worth acting on before it becomes a crisis, rather than waiting for a third data point to be sure.", "tested": "Proactive pattern recognition from ordinary reporting work (not a crisis or escalation), running multiple parallel experiments under real time pressure, making a conscious speed-vs-polish trade-off rather than defaulting to the \"correct\" but slower fix, cross-functional execution across Marketing Ops, Marketing Manager, and QRS.", "crossqs": ["These three lifts were each measured against different populations (7-day signups, landing-page clickers, winback cohort) — how would you combine them into one total number? (Ready answer: convert each relative lift to absolute incremental signups against its own base population, then sum those absolute numbers — you don't just add the percentages together, since they're on different denominators.)", "Did the \"quick fix\" landing-page shortcut get revisited later with the full redesign, or is that still outstanding?", "What's the actual post-lever index-to-forecast number — did this fully close the gap to 100%, or land somewhere between 85 and 100? (Worth confirming this number if possible — it's the cleanest single \"did it work\" answer a Director will want.)", "Was there any tension with the QRS team about them adopting your lever-1 finding into their model — did that require negotiation, or was it a clean handoff?"]}, {"title": "Strengths & Weaknesses", "gap": false, "questions": "What's your greatest strength? · Tell me about a weakness / an area you're working on", "principle": "Self-awareness lands better than a polished non-answer — naming a real, still-in-progress weakness with evidence of change is more credible than a safe deflection or a disguised strength.", "situation": "<p><strong>STRENGTH:<\/strong> If I had to pick, I'd say resilience combined with being a self-starter &mdash; I'm comfortable stepping into ambiguity with little to no guidance and figuring out the path myself. A clear example: when I found the QRS impression-share collapse, there was no monitoring system to even diagnose it, so I built one from scratch. And when I got blamed for a timeline slip mid-investigation, I didn't get defensive &mdash; I laid out exactly what was blocking me and held my ground with the VP. That pairs with being naturally collaborative &mdash; most of my highest-impact work required getting buy-in from teams I didn't manage, across AI, Personalization, Campaign Manager, Marketing Ops, and multiple product segment teams &mdash; and that only works if people actually want to work with you, not just because you're holding data over them.<\/p>", "task": "<p><strong>WEAKNESS:<\/strong> Something I've had to actively work on is my tendency to take on more than my working-hour capacity really allows. When I see a gap &mdash; a team that's stretched, a fix that's stalling &mdash; my instinct is to just pick it up myself rather than wait. That's part of what let me move fast on things like the QRS investigation, but taken too far, it meant consistently working after hours, and it started to affect both my output quality and how sustainable that pace actually was.<\/p><p>What's changed: I've gotten a lot more deliberate about prioritization &mdash; weighing impact, effort, and real urgency before taking something on, rather than accepting every ask by default. A concrete example: during the model health audit I ran, instead of fixing every flagged model myself, I made a point of training the product segment teams to build and deploy models themselves on our platform &mdash; specifically so I wasn't the permanent bottleneck for every future refresh. That's been a real shift from &ldquo;I'll just do it&rdquo; to building capacity in the people around me.<\/p>", "action": "<p>N/A &mdash; this card covers two direct-answer questions rather than a single STAR narrative; see Situation (strength) and Task (weakness) above.<\/p>", "result": "<p>N/A<\/p>", "learning": "Both answers trace back to the same underlying pattern — a strong bias toward ownership and self-sufficiency. The strength is what that looks like working well; the weakness is what it looks like unchecked. Naming that connection directly, if asked, shows a coherent level of self-awareness rather than two disconnected answers.", "tested": "Self-awareness, honesty, whether growth is presented as ongoing and active rather than performative or already \"solved.\"", "crossqs": ["Give me another example of resilience — have the Payments-team-refresh-taken-on-yourself moment ready as a second example.", "How do you know when to be a self-starter vs. ask for help? — have a real answer, e.g., defaulting to figuring out technical unknowns solo since it's usually faster, but learning to ask for support early on things outside your control (like asking your manager to be in the room for a contentious conversation).", "How do you decide what to say no to now? — bridge directly to the Task/Sprint Prioritization story (impact/effort/urgency framework).", "Is this fully resolved, or still in progress? — be honest: this is an ongoing practice, not a solved problem, and that's fine to say directly."]}, {"title": "GAP — Ethical Decision", "gap": true, "questions": "Critical decision based on data with ethical implications", "principle": "Not yet built.", "situation": "<p class=\"tbd\">TBD<\/p>", "task": "<p class=\"tbd\">TBD<\/p>", "action": "<p class=\"tbd\">TBD<\/p>", "result": "<p class=\"tbd\">TBD<\/p>", "learning": "Candidate direction: build from the QRS offer-relevance angle — the principle that showing an irrelevant offer just to hit an impression target is itself a form of degraded customer experience, not a neutral business trade-off — or a fairness angle surfaced while building a propensity model.", "tested": "Self-awareness, judgment that goes beyond pure metrics-optimization.", "crossqs": ["Hard to improvise live under pressure — worth deliberately building this one out ahead of any interview rather than relying on the moment."]}, {"title": "GAP — Complexity vs. Interpretability Trade-off", "gap": true, "questions": "Model complexity vs. interpretability trade-off", "principle": "Not yet built.", "situation": "<p class=\"tbd\">TBD<\/p>", "task": "<p class=\"tbd\">TBD<\/p>", "action": "<p class=\"tbd\">TBD<\/p>", "result": "<p class=\"tbd\">TBD<\/p>", "learning": "Candidate direction: pull from a propensity model build — XGBoost chosen partly for feature-importance interpretability that sales/marketing stakeholders could actually consume, vs. marginal lift from a more complex, less explainable model. See the 'Why XGBoost' and 'Evaluation Metrics' reference cards for supporting detail.", "tested": "Technical judgment, awareness of downstream stakeholder needs (not just model performance in isolation).", "crossqs": ["Can likely be answered as a short factual point rather than a full STAR story if time is tight."]}, {"title": "GAP — Feature Engineering", "gap": true, "questions": "Feature engineering used to improve model performance", "principle": "Not yet built.", "situation": "<p class=\"tbd\">TBD<\/p>", "task": "<p class=\"tbd\">TBD<\/p>", "action": "<p class=\"tbd\">TBD<\/p>", "result": "<p class=\"tbd\">TBD<\/p>", "learning": "Candidate direction: pull from the Payments Attach or Guided Setup feature lists now filled in on the ML Model Projects tab — e.g., turning raw event logs into windowed counts (invoices in last 30/60/90 days) is itself a feature-engineering decision worth narrating.", "tested": "Technical depth.", "crossqs": ["Short factual answer is usually sufficient unless the round is explicitly technical."]}, {"title": "GAP — Imbalanced Data / Model Fairness", "gap": true, "questions": "Imbalanced datasets in a classification problem · ensuring model fairness", "principle": "Not yet built.", "situation": "<p class=\"tbd\">TBD<\/p>", "task": "<p class=\"tbd\">TBD<\/p>", "action": "<p class=\"tbd\">TBD<\/p>", "result": "<p class=\"tbd\">TBD<\/p>", "learning": "Class imbalance is near-universal in these propensity models (attach/schedule events are rare). See the 'Handling Class Imbalance' reference card in this tab for the general methods — still need a specific, real answer for which method(s) were actually used on Payments Attach / Guided Setup.", "tested": "Technical rigor, fairness awareness.", "crossqs": ["Short factual answer is usually sufficient unless the round is explicitly technical."]}, {"title": "GAP — Explaining Model Limitations to Stakeholders", "gap": true, "questions": "Explain the limitations of a model to stakeholders · manage expectations and gain trust", "principle": "Not yet built.", "situation": "<p class=\"tbd\">TBD<\/p>", "task": "<p class=\"tbd\">TBD<\/p>", "action": "<p class=\"tbd\">TBD<\/p>", "result": "<p class=\"tbd\">TBD<\/p>", "learning": "Adjacent to the Executive Partner story — could reuse the QRS narrative, or build a distinct one from the Guided Setup model, where an unexpected side effect (QBLive FTU view decline in treatment) had to be explained to stakeholders as a real limitation, not hidden.", "tested": "Communication, expectation management, trust-building with non-technical stakeholders.", "crossqs": ["Often implicitly covered by the Executive Partner story — lowest priority to build as a fully separate story."]}, {"title": "GAP — Staying Current in the Field", "gap": true, "questions": "How do you stay up to date with developments in data science", "principle": "N/A — factual answer, no story structure needed.", "situation": "<p>N/A<\/p>", "task": "<p>N/A<\/p>", "action": "<p>N/A<\/p>", "result": "<p>N/A<\/p>", "learning": "List real, current habits (courses, papers, communities, specific people/newsletters followed) — keep this honest and specific rather than generic (\"I read a lot\" doesn't land).", "tested": "Genuine curiosity, growth mindset.", "crossqs": ["Low prep needed — just make sure the answer is specific and current, not vague."]}], "models": [{"title": "Payments Attach Model", "gap": false, "fields": [["Business problem", "Surfaced through the QRS A/B test itself: the impression limit for Payments offers was increased expecting more exposure to lift signups, but treatment and control showed a similar Payments GNA (signup) rate despite treatment seeing meaningfully more impressions — pointing to a targeting problem, not an awareness problem. The existing model was about 4 years old and hadn't been retrained on newer customer behavior or newer product surfaces, so I took on refreshing it."], ["Target / label definition", "Binary label: whether the customer GNA'd (signed up) for Payments, measured over a window of more than 30 days from the scoring date."], ["Features used", "19 features spanning firmographics and behavior: QBO tenure, QBO annual revenue, QBO SKU, Payroll_attached_flag, QBLive_attached_flag, Bill_Pay_attached_flag, number of invoices created (ever / last 30 days), number of overdue invoices (ever / last 30-60-90 days), number of estimates created (ever / last 30-60-90 days), connected to 3rd-party apps, added employee, connected banks, number of employees added, days to connect to 3rd-party apps, added deposit, added check."], ["Model & why", "XGBoost (see the ML Concepts tab for the general reasoning). Top 5 features by importance: QBO tenure, number of invoices created, QBO annual revenue, added deposit, added check — notably, the strongest signals were behavioral (what the customer is actually doing in-product), not just firmographic."], ["Build process", "Refresh of an outdated (~4-year-old) model that hadn't been retrained on newer customers or newer product surfaces (e.g., QBLive and Bill Pay likely didn't exist as attach flags when the old model was originally built). Triggered directly by the QRS A/B test anomaly rather than a scheduled refresh cycle."], ["Evaluation — offline metrics", "AUC-ROC, accuracy, precision, recall, confusion matrix (same evaluation approach used across all three propensity models)."], ["Evaluation — A/B test", "Tested in production as an A/B test: the new model lifted the Payments attach rate by 3% (treatment vs. control). TBD — confirm whether this 3% is an absolute or relative lift before stating it precisely in an interview."], ["Business impact", "3% lift in Payments attach rate, feeding into the broader QRS ecosystem-revenue recovery. TBD — add a standalone revenue figure for this model specifically if one exists separately from the $3.6M QRS total."], ["Challenges", "Class imbalance — Payments GNA is a relatively rare positive event against the full QBO customer base. The old model also wasn't trained on newer product flags/behaviors, so part of the challenge was modernizing the feature set itself, not just refitting the model weights."], ["What I'd change today", "TBD — candidate answers: confirm calibration and whether the 3% lift is absolute or relative; evaluate precision at the top decile in addition to AUC, since the real use case is targeting a ranked list, not classifying everyone above a fixed threshold."]]}, {"title": "QB Live Guided Setup Propensity Model", "gap": false, "fields": [["Business problem", "Same underlying rationale as Payments Attach: the existing GSU model in QBS was rule-based, not ML, and wasn't performing well. Goal was to replace it with an ML propensity model to improve the GSU appointment schedule rate AND intentionally reduce over-serving of GSU impressions — freeing that inventory to surface Payroll and Payments offers instead, tying this model's design directly to ecosystem revenue rather than just its own local metric."], ["Target / label definition", "Binary label: whether the customer scheduled a Guided Setup (GSU) appointment (the \"appointment schedule rate\")."], ["Features used", "QBO tenure, QBO annual revenue, calls made to CS agents (last 30/60/90 days), QBO acquisition channel, industry, added bank, categorized transactions, years in business, attached Payroll, attached Payments, number of QBO logins (past 7/14/30/60 days)."], ["Model & why", "XGBoost, same rationale as Payments Attach. Top features by importance: QBO tenure, login frequency, and QBO annual revenue."], ["Build process", "Replaced a rule-based model with an ML model — test design labeled Control = rule-based GSU model in QBS, Treatment = ML propensity model in QBS. Same evaluation methodology as the other two models."], ["Evaluation — offline metrics", "AUC-ROC, accuracy, precision, recall, confusion matrix."], ["Evaluation — A/B test", "Tested via A/B test in QRS. GSU impressions were intentionally/consequently reduced by roughly 12%, freeing that inventory for Payroll and Payments offers. GSU appointment schedule rate itself increased only modestly (exact figure TBD — pull from resume/original readout), described on the original results deck as \"trending positive\" — i.e., no harm from the model swap. The freed-up impressions on Payroll/Payments drove a lift in those attaches and contributed to increased ecosystem revenue."], ["Business impact", "Directionally: GSU impressions -12%, reallocated to Payroll/Payments, contributing to ecosystem revenue growth. TBD — precise revenue and schedule-rate lift numbers still need confirming from the original results deck (a photo was reviewed but wasn't fully legible due to rotation/glare; re-upload a clearer version or type the exact figures to lock these in)."], ["Challenges", "Class imbalance (GSU scheduling is a relatively rare event). Also a real, non-obvious challenge worth mentioning in an interview: the test surfaced an unexpected interaction effect — a decline in QBLive FTU (first-time-use) offer views in the treatment group, leading to higher impressions for a combined QBO/PR/SELL offer bucket that wasn't fully anticipated going in. A good example of second-order effects in a multi-offer ecosystem."], ["What I'd change today", "Per the original recommendation on the results deck itself: keep iterating on the model based on first-iteration learnings, and also improve the content/placement of the offers themselves — not just the targeting model. A solid, honest answer if asked \"what would you change.\""]]}, {"title": "IES Propensity Model", "gap": true, "fields": [["Business problem", "TBD"], ["Target / label definition", "TBD"], ["Features used", "TBD"], ["Model & why", "TBD"], ["Build process", "TBD"], ["Evaluation — offline metrics", "TBD"], ["Evaluation — A/B test", "TBD"], ["Business impact", "TBD"], ["Challenges", "TBD"], ["What I'd change today", "TBD"]]}], "exploratory": [{"title": "Personalization Strategy Exploration — Email Channel", "gap": true, "fields": [["Objective", "TBD"], ["Approach", "TBD"], ["Key findings", "TBD"], ["Business impact", "TBD"], ["Learnings", "TBD"]]}, {"title": "Personalization Strategy Exploration — IPD Channel", "gap": true, "fields": [["Objective", "TBD"], ["Approach", "TBD"], ["Key findings", "TBD"], ["Business impact", "TBD"], ["Learnings", "TBD"]]}], "experimentation": [{"title": "GTM Experimentation Project (example)", "gap": true, "fields": [["Hypothesis", "TBD — what was the hypothesis being tested?"], ["Experiment design", "TBD — control vs. treatment design"], ["Primary metrics", "TBD — e.g. application rate, incremental revenue"], ["Results", "TBD — quantify the lift precisely"], ["Business impact", "Known so far: significant lift in application rate and incremental revenue (from prior prep) — needs precise numbers filled in."], ["Learnings", "TBD"]]}, {"title": "Email Channel Personalization A/B Tests", "gap": true, "fields": [["Hypothesis", "TBD"], ["Experiment design", "TBD"], ["Primary metrics", "TBD"], ["Results", "TBD"], ["Business impact", "TBD"], ["Learnings", "TBD"]]}, {"title": "IPD Channel Personalization A/B Tests", "gap": true, "fields": [["Hypothesis", "TBD"], ["Experiment design", "TBD"], ["Primary metrics", "TBD"], ["Results", "TBD"], ["Business impact", "TBD"], ["Learnings", "TBD"]]}], "concepts": [{"title": "What Does This Model Actually Do? (Plain Language)", "body": "<p>At its core, this is a <strong>binary classification model<\/strong>. For each customer, it outputs a single number between 0 and 1 &mdash; an estimated probability that this specific customer will take a defined action (attach Payments, schedule a Guided Setup call, etc.) within a defined time window, based on patterns learned from customers who did and didn't take that action in the past.<\/p><p>The business then uses that score to decide who to prioritize: surface the offer to the highest-scored customers first, or only to customers above a certain score threshold, rather than showing the same offer to everyone equally. In other words, the model doesn't decide <em>what<\/em> to offer &mdash; it decides <em>who<\/em> is most worth offering it to right now.<\/p>"}, {"title": "Why XGBoost?", "body": "<p><strong>In plain language:<\/strong> XGBoost (Extreme Gradient Boosting) builds a model as a sequence of decision trees, where each new tree is trained specifically to correct the mistakes of the trees before it. Instead of asking one big, complex model to get everything right at once, it asks many small, simple trees to each fix a little of what's still wrong, and adds their corrections together to get a final prediction.<\/p><p><strong>Why it fits this kind of propensity model specifically:<\/strong><\/p><ul><li>Handles non-linear feature interactions natively (e.g., tenure matters differently depending on invoice volume) without manually building interaction terms.<\/li><li>Robust to missing data &mdash; has built-in handling for missing values rather than requiring imputation up front.<\/li><li>Works natively with a mix of continuous (revenue, tenure) and binary/flag features (*_attached_flag columns) without heavy preprocessing.<\/li><li>Built-in L1/L2 regularization helps reduce overfitting on business data that's often noisy and has correlated features.<\/li><li>Feature importance output gives an interpretable ranking business stakeholders can act on &mdash; this is exactly how top features like tenure, invoice count, and revenue were identified and explained to stakeholders.<\/li><li>Mature, fast, well-supported libraries with efficient training even on large tabular datasets &mdash; practical for periodic retraining cycles.<\/li><\/ul><table class=\"concept-table\"><thead><tr><th>Approach<\/th><th>Interpretability<\/th><th>Handles non-linearity<\/th><th>Typical fit for this kind of tabular business data<\/th><\/tr><\/thead><tbody><tr><td>Logistic Regression<\/td><td>High<\/td><td>Low (needs manual interaction terms)<\/td><td>Good baseline, but often underfits real feature interactions<\/td><\/tr><tr><td>Random Forest<\/td><td>Medium<\/td><td>High<\/td><td>Solid, but XGBoost typically edges it out via boosting<\/td><\/tr><tr><td>XGBoost<\/td><td>Medium&ndash;High (via feature importance)<\/td><td>High<\/td><td>Strong default choice for structured/tabular business data<\/td><\/tr><tr><td>Neural Network<\/td><td>Low<\/td><td>Very High<\/td><td>Usually overkill here &mdash; needs more data, less explainable, marginal gains on tabular data rarely worth the complexity<\/td><\/tr><\/tbody><\/table>"}, {"title": "Model Development Process", "body": "<svg viewBox=\"0 0 1404 128\" xmlns=\"http://www.w3.org/2000/svg\" class=\"flow-diagram\"><defs><marker id=\"arrow-dev\" markerWidth=\"9\" markerHeight=\"9\" refX=\"7\" refY=\"3\" orient=\"auto\" markerUnits=\"strokeWidth\"><path d=\"M0,0 L0,6 L8,3 z\" fill=\"#AE6B2C\"/><\/marker><\/defs><rect x=\"0\" y=\"14\" width=\"158\" height=\"104\" rx=\"8\" fill=\"#FFFFFF\" stroke=\"#DDD6C7\" stroke-width=\"1.5\"/><text x=\"14\" y=\"32\" font-family=\"IBM Plex Mono, monospace\" font-size=\"10\" fill=\"#AE6B2C\">01<\/text><foreignObject x=\"8\" y=\"34\" width=\"142\" height=\"78\"><div xmlns=\"http://www.w3.org/1999/xhtml\" style=\"font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;line-height:1.32;color:#1B2A4A;text-align:center;display:flex;align-items:center;justify-content:center;height:100%;\">Define business problem &amp; label<\/div><\/foreignObject><line x1=\"160\" y1=\"66.0\" x2=\"175\" y2=\"66.0\" stroke=\"#AE6B2C\" stroke-width=\"2\" marker-end=\"url(#arrow-dev)\"/><rect x=\"178\" y=\"14\" width=\"158\" height=\"104\" rx=\"8\" fill=\"#FFFFFF\" stroke=\"#DDD6C7\" stroke-width=\"1.5\"/><text x=\"192\" y=\"32\" font-family=\"IBM Plex Mono, monospace\" font-size=\"10\" fill=\"#AE6B2C\">02<\/text><foreignObject x=\"186\" y=\"34\" width=\"142\" height=\"78\"><div xmlns=\"http://www.w3.org/1999/xhtml\" style=\"font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;line-height:1.32;color:#1B2A4A;text-align:center;display:flex;align-items:center;justify-content:center;height:100%;\">Assemble &amp; engineer features<\/div><\/foreignObject><line x1=\"338\" y1=\"66.0\" x2=\"353\" y2=\"66.0\" stroke=\"#AE6B2C\" stroke-width=\"2\" marker-end=\"url(#arrow-dev)\"/><rect x=\"356\" y=\"14\" width=\"158\" height=\"104\" rx=\"8\" fill=\"#FFFFFF\" stroke=\"#DDD6C7\" stroke-width=\"1.5\"/><text x=\"370\" y=\"32\" font-family=\"IBM Plex Mono, monospace\" font-size=\"10\" fill=\"#AE6B2C\">03<\/text><foreignObject x=\"364\" y=\"34\" width=\"142\" height=\"78\"><div xmlns=\"http://www.w3.org/1999/xhtml\" style=\"font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;line-height:1.32;color:#1B2A4A;text-align:center;display:flex;align-items:center;justify-content:center;height:100%;\">Train / validation / test split<\/div><\/foreignObject><line x1=\"516\" y1=\"66.0\" x2=\"531\" y2=\"66.0\" stroke=\"#AE6B2C\" stroke-width=\"2\" marker-end=\"url(#arrow-dev)\"/><rect x=\"534\" y=\"14\" width=\"158\" height=\"104\" rx=\"8\" fill=\"#FFFFFF\" stroke=\"#DDD6C7\" stroke-width=\"1.5\"/><text x=\"548\" y=\"32\" font-family=\"IBM Plex Mono, monospace\" font-size=\"10\" fill=\"#AE6B2C\">04<\/text><foreignObject x=\"542\" y=\"34\" width=\"142\" height=\"78\"><div xmlns=\"http://www.w3.org/1999/xhtml\" style=\"font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;line-height:1.32;color:#1B2A4A;text-align:center;display:flex;align-items:center;justify-content:center;height:100%;\">Handle class imbalance<\/div><\/foreignObject><line x1=\"694\" y1=\"66.0\" x2=\"709\" y2=\"66.0\" stroke=\"#AE6B2C\" stroke-width=\"2\" marker-end=\"url(#arrow-dev)\"/><rect x=\"712\" y=\"14\" width=\"158\" height=\"104\" rx=\"8\" fill=\"#FFFFFF\" stroke=\"#DDD6C7\" stroke-width=\"1.5\"/><text x=\"726\" y=\"32\" font-family=\"IBM Plex Mono, monospace\" font-size=\"10\" fill=\"#AE6B2C\">05<\/text><foreignObject x=\"720\" y=\"34\" width=\"142\" height=\"78\"><div xmlns=\"http://www.w3.org/1999/xhtml\" style=\"font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;line-height:1.32;color:#1B2A4A;text-align:center;display:flex;align-items:center;justify-content:center;height:100%;\">Train &amp; tune model (XGBoost)<\/div><\/foreignObject><line x1=\"872\" y1=\"66.0\" x2=\"887\" y2=\"66.0\" stroke=\"#AE6B2C\" stroke-width=\"2\" marker-end=\"url(#arrow-dev)\"/><rect x=\"890\" y=\"14\" width=\"158\" height=\"104\" rx=\"8\" fill=\"#FFFFFF\" stroke=\"#DDD6C7\" stroke-width=\"1.5\"/><text x=\"904\" y=\"32\" font-family=\"IBM Plex Mono, monospace\" font-size=\"10\" fill=\"#AE6B2C\">06<\/text><foreignObject x=\"898\" y=\"34\" width=\"142\" height=\"78\"><div xmlns=\"http://www.w3.org/1999/xhtml\" style=\"font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;line-height:1.32;color:#1B2A4A;text-align:center;display:flex;align-items:center;justify-content:center;height:100%;\">Offline evaluation<\/div><\/foreignObject><line x1=\"1050\" y1=\"66.0\" x2=\"1065\" y2=\"66.0\" stroke=\"#AE6B2C\" stroke-width=\"2\" marker-end=\"url(#arrow-dev)\"/><rect x=\"1068\" y=\"14\" width=\"158\" height=\"104\" rx=\"8\" fill=\"#FFFFFF\" stroke=\"#DDD6C7\" stroke-width=\"1.5\"/><text x=\"1082\" y=\"32\" font-family=\"IBM Plex Mono, monospace\" font-size=\"10\" fill=\"#AE6B2C\">07<\/text><foreignObject x=\"1076\" y=\"34\" width=\"142\" height=\"78\"><div xmlns=\"http://www.w3.org/1999/xhtml\" style=\"font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;line-height:1.32;color:#1B2A4A;text-align:center;display:flex;align-items:center;justify-content:center;height:100%;\">A/B test in production<\/div><\/foreignObject><line x1=\"1228\" y1=\"66.0\" x2=\"1243\" y2=\"66.0\" stroke=\"#AE6B2C\" stroke-width=\"2\" marker-end=\"url(#arrow-dev)\"/><rect x=\"1246\" y=\"14\" width=\"158\" height=\"104\" rx=\"8\" fill=\"#FFFFFF\" stroke=\"#DDD6C7\" stroke-width=\"1.5\"/><text x=\"1260\" y=\"32\" font-family=\"IBM Plex Mono, monospace\" font-size=\"10\" fill=\"#AE6B2C\">08<\/text><foreignObject x=\"1254\" y=\"34\" width=\"142\" height=\"78\"><div xmlns=\"http://www.w3.org/1999/xhtml\" style=\"font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;line-height:1.32;color:#1B2A4A;text-align:center;display:flex;align-items:center;justify-content:center;height:100%;\">Deploy &amp; monitor<\/div><\/foreignObject><\/svg><div class=\"flow-steps\"><p><strong>01&ndash;02 &mdash; Define the problem &amp; engineer features:<\/strong> pin down exactly what the label means (what action, over what time window) before touching features &mdash; a vague label produces a model nobody trusts. Features are then assembled from raw behavioral/transactional data into the windowed, aggregated signals the model actually trains on.<\/p><p><strong>03 &mdash; Train / validation / test split:<\/strong> typically time-based for business data like this (train on older customers/periods, validate and test on more recent ones) rather than a purely random split, to avoid leaking future information into training.<\/p><p><strong>04 &mdash; Handle class imbalance:<\/strong> see the dedicated reference card in this tab.<\/p><p><strong>05&ndash;06 &mdash; Train, tune, and evaluate offline:<\/strong> fit the model, tune hyperparameters, and check performance using the metrics covered in the Evaluation Metrics card.<\/p><p><strong>07 &mdash; A/B test in production:<\/strong> offline metrics tell you the model discriminates well; only a live test tells you it actually changes business behavior (this is exactly the gap that surfaced the original Payments Attach problem &mdash; the old model may have looked fine offline while failing in production).<\/p><p><strong>08 &mdash; Deploy &amp; monitor:<\/strong> this isn't the end of the cycle &mdash; it feeds back into step 01. Most propensity models are retrained on a periodic cadence (e.g., quarterly) or when monitoring detects performance drift, exactly like the ~4-year-old Payments model that had quietly gone stale.<\/p><\/div>"}, {"title": "Creating the Inference (Scoring) Dataset", "body": "<svg viewBox=\"0 0 1404 128\" xmlns=\"http://www.w3.org/2000/svg\" class=\"flow-diagram\"><defs><marker id=\"arrow-inf\" markerWidth=\"9\" markerHeight=\"9\" refX=\"7\" refY=\"3\" orient=\"auto\" markerUnits=\"strokeWidth\"><path d=\"M0,0 L0,6 L8,3 z\" fill=\"#AE6B2C\"/><\/marker><\/defs><rect x=\"0\" y=\"14\" width=\"158\" height=\"104\" rx=\"8\" fill=\"#FFFFFF\" stroke=\"#DDD6C7\" stroke-width=\"1.5\"/><text x=\"14\" y=\"32\" font-family=\"IBM Plex Mono, monospace\" font-size=\"10\" fill=\"#AE6B2C\">01<\/text><foreignObject x=\"8\" y=\"34\" width=\"142\" height=\"78\"><div xmlns=\"http://www.w3.org/1999/xhtml\" style=\"font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;line-height:1.32;color:#1B2A4A;text-align:center;display:flex;align-items:center;justify-content:center;height:100%;\">Pick scoring (&ldquo;as of&rdquo;) date<\/div><\/foreignObject><line x1=\"160\" y1=\"66.0\" x2=\"175\" y2=\"66.0\" stroke=\"#AE6B2C\" stroke-width=\"2\" marker-end=\"url(#arrow-inf)\"/><rect x=\"178\" y=\"14\" width=\"158\" height=\"104\" rx=\"8\" fill=\"#FFFFFF\" stroke=\"#DDD6C7\" stroke-width=\"1.5\"/><text x=\"192\" y=\"32\" font-family=\"IBM Plex Mono, monospace\" font-size=\"10\" fill=\"#AE6B2C\">02<\/text><foreignObject x=\"186\" y=\"34\" width=\"142\" height=\"78\"><div xmlns=\"http://www.w3.org/1999/xhtml\" style=\"font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;line-height:1.32;color:#1B2A4A;text-align:center;display:flex;align-items:center;justify-content:center;height:100%;\">Pull same features as training<\/div><\/foreignObject><line x1=\"338\" y1=\"66.0\" x2=\"353\" y2=\"66.0\" stroke=\"#AE6B2C\" stroke-width=\"2\" marker-end=\"url(#arrow-inf)\"/><rect x=\"356\" y=\"14\" width=\"158\" height=\"104\" rx=\"8\" fill=\"#FFFFFF\" stroke=\"#DDD6C7\" stroke-width=\"1.5\"/><text x=\"370\" y=\"32\" font-family=\"IBM Plex Mono, monospace\" font-size=\"10\" fill=\"#AE6B2C\">03<\/text><foreignObject x=\"364\" y=\"34\" width=\"142\" height=\"78\"><div xmlns=\"http://www.w3.org/1999/xhtml\" style=\"font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;line-height:1.32;color:#1B2A4A;text-align:center;display:flex;align-items:center;justify-content:center;height:100%;\">No label &mdash; outcome is unknown yet<\/div><\/foreignObject><line x1=\"516\" y1=\"66.0\" x2=\"531\" y2=\"66.0\" stroke=\"#AE6B2C\" stroke-width=\"2\" marker-end=\"url(#arrow-inf)\"/><rect x=\"534\" y=\"14\" width=\"158\" height=\"104\" rx=\"8\" fill=\"#FFFFFF\" stroke=\"#DDD6C7\" stroke-width=\"1.5\"/><text x=\"548\" y=\"32\" font-family=\"IBM Plex Mono, monospace\" font-size=\"10\" fill=\"#AE6B2C\">04<\/text><foreignObject x=\"542\" y=\"34\" width=\"142\" height=\"78\"><div xmlns=\"http://www.w3.org/1999/xhtml\" style=\"font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;line-height:1.32;color:#1B2A4A;text-align:center;display:flex;align-items:center;justify-content:center;height:100%;\">Handle new / cold-start customers<\/div><\/foreignObject><line x1=\"694\" y1=\"66.0\" x2=\"709\" y2=\"66.0\" stroke=\"#AE6B2C\" stroke-width=\"2\" marker-end=\"url(#arrow-inf)\"/><rect x=\"712\" y=\"14\" width=\"158\" height=\"104\" rx=\"8\" fill=\"#FFFFFF\" stroke=\"#DDD6C7\" stroke-width=\"1.5\"/><text x=\"726\" y=\"32\" font-family=\"IBM Plex Mono, monospace\" font-size=\"10\" fill=\"#AE6B2C\">05<\/text><foreignObject x=\"720\" y=\"34\" width=\"142\" height=\"78\"><div xmlns=\"http://www.w3.org/1999/xhtml\" style=\"font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;line-height:1.32;color:#1B2A4A;text-align:center;display:flex;align-items:center;justify-content:center;height:100%;\">Generate score (predict_proba)<\/div><\/foreignObject><line x1=\"872\" y1=\"66.0\" x2=\"887\" y2=\"66.0\" stroke=\"#AE6B2C\" stroke-width=\"2\" marker-end=\"url(#arrow-inf)\"/><rect x=\"890\" y=\"14\" width=\"158\" height=\"104\" rx=\"8\" fill=\"#FFFFFF\" stroke=\"#DDD6C7\" stroke-width=\"1.5\"/><text x=\"904\" y=\"32\" font-family=\"IBM Plex Mono, monospace\" font-size=\"10\" fill=\"#AE6B2C\">06<\/text><foreignObject x=\"898\" y=\"34\" width=\"142\" height=\"78\"><div xmlns=\"http://www.w3.org/1999/xhtml\" style=\"font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;line-height:1.32;color:#1B2A4A;text-align:center;display:flex;align-items:center;justify-content:center;height:100%;\">Rank customers / apply threshold<\/div><\/foreignObject><line x1=\"1050\" y1=\"66.0\" x2=\"1065\" y2=\"66.0\" stroke=\"#AE6B2C\" stroke-width=\"2\" marker-end=\"url(#arrow-inf)\"/><rect x=\"1068\" y=\"14\" width=\"158\" height=\"104\" rx=\"8\" fill=\"#FFFFFF\" stroke=\"#DDD6C7\" stroke-width=\"1.5\"/><text x=\"1082\" y=\"32\" font-family=\"IBM Plex Mono, monospace\" font-size=\"10\" fill=\"#AE6B2C\">07<\/text><foreignObject x=\"1076\" y=\"34\" width=\"142\" height=\"78\"><div xmlns=\"http://www.w3.org/1999/xhtml\" style=\"font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;line-height:1.32;color:#1B2A4A;text-align:center;display:flex;align-items:center;justify-content:center;height:100%;\">Push to downstream system<\/div><\/foreignObject><line x1=\"1228\" y1=\"66.0\" x2=\"1243\" y2=\"66.0\" stroke=\"#AE6B2C\" stroke-width=\"2\" marker-end=\"url(#arrow-inf)\"/><rect x=\"1246\" y=\"14\" width=\"158\" height=\"104\" rx=\"8\" fill=\"#FFFFFF\" stroke=\"#DDD6C7\" stroke-width=\"1.5\"/><text x=\"1260\" y=\"32\" font-family=\"IBM Plex Mono, monospace\" font-size=\"10\" fill=\"#AE6B2C\">08<\/text><foreignObject x=\"1254\" y=\"34\" width=\"142\" height=\"78\"><div xmlns=\"http://www.w3.org/1999/xhtml\" style=\"font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;line-height:1.32;color:#1B2A4A;text-align:center;display:flex;align-items:center;justify-content:center;height:100%;\">Repeat on a fixed cadence<\/div><\/foreignObject><\/svg><div class=\"flow-steps\"><p>The inference (or scoring) dataset is different from the training dataset in one crucial way: <strong>there's no label<\/strong>, because the outcome hasn't happened yet &mdash; that's the whole point of scoring someone.<\/p><p><strong>Feature parity is everything:<\/strong> every feature has to be computed the exact same way, with the exact same lookback windows, as it was during training. If \"invoices created in last 30 days\" was computed relative to a labeling date during training, it must be computed relative to today's scoring date at inference &mdash; any mismatch here silently degrades the model without throwing an error.<\/p><p><strong>Avoiding leakage:<\/strong> only information that would genuinely have been available as of the scoring date can be used &mdash; nothing from after that point, even if it's sitting in the warehouse already.<\/p><p><strong>Cold-start customers:<\/strong> new customers with little to no history need an explicit policy &mdash; e.g., a simpler fallback score, a minimum-tenure gate before scoring, or imputed defaults &mdash; since most behavioral features (invoice counts, login frequency) are undefined or zero for brand-new accounts in a way that isn't necessarily meaningful.<\/p><p><strong>Cadence:<\/strong> scoring typically runs on a fixed batch cadence (daily/weekly) rather than continuously, and the cadence itself should match how often the downstream action (a campaign, a QRS recommendation) actually refreshes.<\/p><\/div>"}, {"title": "Handling Class Imbalance", "body": "<p>Propensity labels like \"attached Payments\" or \"scheduled GSU\" are almost always rare relative to the full customer base &mdash; which means a naive model can get high accuracy just by predicting \"no\" for everyone. These are the standard ways to address that:<\/p><table class=\"concept-table\"><thead><tr><th>Method<\/th><th>What it does<\/th><th>Trade-off<\/th><\/tr><\/thead><tbody><tr><td>Class weighting (e.g., XGBoost's <code>scale_pos_weight<\/code>)<\/td><td>Increases the loss penalty for misclassifying the minority (positive) class, without changing the underlying data<\/td><td>Simple, preserves the real data distribution; needs tuning to avoid overcorrecting<\/td><\/tr><tr><td>Oversampling (e.g., SMOTE, random oversampling)<\/td><td>Duplicates or synthesizes additional minority-class examples so the model sees more of them during training<\/td><td>Can lead to overfitting on duplicated/synthetic patterns<\/td><\/tr><tr><td>Undersampling<\/td><td>Reduces the number of majority-class examples so classes are more balanced<\/td><td>Throws away data &mdash; riskier when history is already limited<\/td><\/tr><tr><td>Threshold moving<\/td><td>Keep the model as-is, but choose a classification threshold below the default 0.5 that better matches the true positive rate<\/td><td>Cheap and doesn't touch training at all, but the threshold choice should be validation-set-informed, not arbitrary<\/td><\/tr><tr><td>Metric choice<\/td><td>Don't fix the imbalance at all &mdash; instead evaluate with metrics that aren't misleading under imbalance (see the Evaluation Metrics card)<\/td><td>Doesn't change the model, just how you judge it &mdash; often the first, simplest step before reaching for anything more complex<\/td><\/tr><\/tbody><\/table>"}, {"title": "Evaluation Metrics — What Each Tells You, and When to Use It", "body": "<table class=\"concept-table\"><thead><tr><th>Metric<\/th><th>What it tells you<\/th><th>Best used when<\/th><\/tr><\/thead><tbody><tr><td>Accuracy<\/td><td>% of all predictions that were correct<\/td><td>Rarely the right primary metric here &mdash; misleading when the positive class is rare (a model that always predicts \"no\" can still look highly accurate)<\/td><\/tr><tr><td>Confusion Matrix<\/td><td>Raw breakdown of true/false positives and negatives<\/td><td>Always useful as a first sanity check &mdash; shows exactly what kind of errors the model makes<\/td><\/tr><tr><td>Precision<\/td><td>Of everyone the model flagged as likely to convert, what % actually did<\/td><td>Matters most when false positives are costly &mdash; e.g., wasted marketing spend or annoying customers with irrelevant offers<\/td><\/tr><tr><td>Recall<\/td><td>Of everyone who actually converted, what % did the model correctly identify<\/td><td>Matters most when missing a true positive is costly &mdash; e.g., failing to surface Payments to a customer who would have attached<\/td><\/tr><tr><td>F1 Score<\/td><td>Harmonic mean of precision and recall<\/td><td>A single balanced number when false positives and false negatives matter roughly equally<\/td><\/tr><tr><td>AUC-ROC<\/td><td>Overall ability to rank positive cases higher than negative cases, across all thresholds<\/td><td>Good general-purpose model-comparison metric, but can look overly optimistic when the positive class is rare, since it's inflated by the abundance of true negatives<\/td><\/tr><tr><td>AUC-PR (Precision-Recall AUC)<\/td><td>Same idea as AUC-ROC, but focused specifically on positive-class performance<\/td><td>Better than AUC-ROC when the label is imbalanced (as with GNA/schedule-rate models), since it isn't inflated by true negatives<\/td><\/tr><tr><td>Precision @ Top-K (e.g., top decile)<\/td><td>Of the top X% highest-scored customers, what % actually convert<\/td><td>The most business-relevant metric for propensity/targeting use cases, since the business usually targets a ranked list, not everyone above a 0.5 cutoff<\/td><\/tr><tr><td>Lift / Gain Charts<\/td><td>How much better the model performs vs. random targeting, decile by decile<\/td><td>Directly maps to a targeting-strategy conversation with stakeholders &mdash; easy to present to non-technical audiences<\/td><\/tr><tr><td>Calibration<\/td><td>Whether a predicted score of, say, 0.7 actually corresponds to a ~70% real-world conversion rate<\/td><td>Matters when the raw probability itself feeds downstream math (e.g., expected revenue = score &times; value), not just the ranking<\/td><\/tr><\/tbody><\/table><p><strong>Quick decision guide:<\/strong><\/p><ul><li>Goal is only to rank and target the top X% of customers (most propensity use cases): prioritize Precision@K and Lift/Gain charts, use AUC-PR as a secondary overall check, and treat AUC-ROC as supporting &mdash; not primary &mdash; given imbalance.<\/li><li>The actual probability value will be used in downstream math (e.g., expected revenue): check calibration, not just ranking ability.<\/li><li>False positives and false negatives have meaningfully different real costs: don't default to a 0.5 threshold or plain F1 &mdash; use the precision/recall trade-off (or F-beta) to pick a threshold matching the actual cost asymmetry.<\/li><li>Always start with a confusion matrix &mdash; it's the fastest way to catch a model that looks good on one metric while failing in an obvious way.<\/li><\/ul>"}], "qindex": [{"title": "Ownership, Ambiguity & Proactivity", "gap": false, "fields": [["Example question phrasings", "\"Tell me about a time you owned a project with no clear direction.\" · \"Describe a time you anticipated a problem before it happened.\" · \"Tell me about a time you took initiative beyond your assigned scope.\" · \"Tell me about a time you started something nobody asked you to do.\""], ["Best stor(y/ies) to use", "Executive Partner & Influencer (catching the QRS collapse) · Proactive Model Health Audit (auditing every model before another one silently failed) · Payroll Forecast Recovery (acting on a 2-month forecast trend before peak season)"]]}, {"title": "Executive Influence & Managing Up", "gap": false, "fields": [["Example question phrasings", "\"Tell me about a time you influenced a VP/executive-level decision.\" · \"Describe a time you handled pressure or blame from leadership.\" · \"How do you communicate complex findings to an executive audience?\" · \"Tell me about managing up.\""], ["Best stor(y/ies) to use", "Executive Partner & Influencer (primary — VP presentation + being blamed by Marketing Ops + holding ground) · Difficult Stakeholder / Offer-Priority Conflict (escalating to the VP for governance approval)"]]}, {"title": "Conflict & Difficult Stakeholders", "gap": false, "fields": [["Example question phrasings", "\"Tell me about a difficult stakeholder.\" · \"Describe a disagreement with a peer or leader.\" · \"Tell me about a time a process or priority wasn't being followed.\" · \"How do you handle conflict?\""], ["Best stor(y/ies) to use", "Difficult Stakeholder / Offer-Priority Conflict (primary) — note: distinguish this from the Task/Sprint Prioritization story if asked about \"priority\"; that one is a personal-task-management question, this one is a product/business-mechanism conflict."]]}, {"title": "Prioritization & Trade-offs", "gap": false, "fields": [["Example question phrasings", "\"How do you prioritize your work during sprint planning?\" · \"Describe a time you balanced speed vs. thoroughness.\" · \"Tell me about a decision made with incomplete resources or time.\" · \"Tell me about a time you had to prioritize multiple projects simultaneously.\""], ["Best stor(y/ies) to use", "Task / Sprint Prioritization (primary — has the repeatable framework) · Outcome-Focused Prioritization (concrete example: sequencing QRS fixes by speed-to-test) · Payroll Forecast Recovery (the deliberate landing-page shortcut is a clean speed-vs-polish trade-off)"]]}, {"title": "Experimentation & Causal Inference", "gap": false, "fields": [["Example question phrasings", "\"Describe your approach to experimental design.\" · \"Tell me about a time you used statistical hypothesis testing.\" · \"How do you use data to guide a resourcing/investment decision?\" · \"How do you isolate causal impact?\""], ["Best stor(y/ies) to use", "Experimentation Culture Builder (primary — staged Treatment 1/2 design isolating inventory vs. offer-refresh impact) · Payroll Forecast Recovery (aggregation-methodology question: converting relative lifts on different populations into one absolute total)"]]}, {"title": "Insight → Roadmap / Strategy Influence", "gap": false, "fields": [["Example question phrasings", "\"Tell me about a time an insight you found changed the product roadmap or strategy.\" · \"How did you get buy-in for something that wasn't already a priority?\" · \"Describe a time your analysis directly shaped a business decision.\""], ["Best stor(y/ies) to use", "Proactive Model Health Audit (primary — audit findings directly became a 2-quarter roadmap item) · Payroll Forecast Recovery (QRS adopted the day-10 cold-start finding into their model) · Difficult Stakeholder / Offer-Priority Conflict (findings became a formal governance process)"]]}, {"title": "Insight NOT Adopted Into the Roadmap", "gap": true, "fields": [["Example question phrasings", "\"Tell me about a time your recommendation wasn't adopted.\" · \"Describe a time you disagreed with a decision but had to accept it.\" · \"How do you handle it when your data-backed case doesn't win?\""], ["Best stor(y/ies) to use", "TBD — flagged gap, not yet built. Explicitly called out by the recruiter as something to prepare; still needs real raw material from a past project."]]}, {"title": "Setback, Failure & Pressure", "gap": false, "fields": [["Example question phrasings", "\"Tell me about a project that failed or a decision you got wrong.\" · \"Describe a time you were blamed for something.\" · \"What would you do differently?\""], ["Best stor(y/ies) to use", "Executive Partner & Influencer (the Marketing Ops escalation / being blamed mid-investigation is the clearest setback-under-pressure beat in the story bank)"]]}, {"title": "Cross-Functional Collaboration & Team/Org Impact", "gap": false, "fields": [["Example question phrasings", "\"Describe a project where you worked with a cross-functional team.\" · \"What was your role and how did you contribute to the project's success?\" · \"Tell me about a time your work had team- or org-level impact.\""], ["Best stor(y/ies) to use", "Executive Partner & Influencer · Proactive Model Health Audit (coordinated across AI, multiple product segment teams, and coached teams on AIW) · Payroll Forecast Recovery (Marketing Ops, Marketing Manager, QRS team)"]]}, {"title": "Strengths & Weaknesses / Self-Awareness", "gap": false, "fields": [["Example question phrasings", "\"What's your greatest strength?\" · \"Tell me about a weakness or an area you're working on.\" · \"How do you know when to ask for help?\""], ["Best stor(y/ies) to use", "Strengths & Weaknesses (dedicated card) — both answers trace back to the same underlying ownership/self-sufficiency pattern, which is worth naming explicitly if probed."]]}, {"title": "Technical / Model-Specific Judgment", "gap": false, "fields": [["Example question phrasings", "\"Walk me through a model you built.\" · \"Why this algorithm?\" · \"How did you handle class imbalance?\" · \"How did you evaluate the model, offline and in production?\" · \"Complexity vs. interpretability trade-off?\""], ["Best stor(y/ies) to use", "ML Model Projects tab (Payments Attach Model, QB Live Guided Setup Propensity Model) for the specific project narrative · ML Concepts Reference tab for the general reasoning (why XGBoost, imbalance methods, evaluation-metric selection) to draw on for any follow-up probing."]]}]};
+
+function stripTags(html){ return html.replace(/<[^>]*>/g, ' '); }
+
+function starBlock(list){
+  return list.map(function(c){
+    var badge = c.gap ? '<span class="badge gap">GAP</span>' : '<span class="badge built">BUILT</span>';
+    var body =
+      '<div class="card-body"><div class="card-body-inner">' +
+        '<div class="principle"><span class="star-label">PRINCIPLE</span>' + c.principle + '</div>' +
+        '<div class="star-stack">' +
+          '<div class="star-block"><div class="star-label">SITUATION</div><div class="star-text">' + c.situation + '</div></div>' +
+          '<div class="star-block"><div class="star-label">TASK</div><div class="star-text">' + c.task + '</div></div>' +
+          '<div class="star-block"><div class="star-label">ACTION</div><div class="star-text">' + c.action + '</div></div>' +
+          '<div class="star-block"><div class="star-label">RESULT</div><div class="star-text">' + c.result + '</div></div>' +
+        '</div>' +
+        '<div class="learning"><span class="star-label">LEARNING</span>' + c.learning + '</div>' +
+        '<div class="meta-row">' +
+          '<div class="meta-block"><div class="star-label">WHAT\'S BEING TESTED</div>' + c.tested + '</div>' +
+          '<div class="meta-block"><div class="star-label">LIKELY CROSS-QUESTIONS</div><ul>' + c.crossqs.map(function(q){return '<li>'+q+'</li>';}).join('') + '</ul></div>' +
+        '</div>' +
+      '</div></div>';
+    var searchText = (c.title+' '+c.questions+' '+stripTags(c.situation)+' '+stripTags(c.action)+' '+stripTags(c.result)+' '+c.learning).toLowerCase();
+    var wrap = document.createElement('div');
+    wrap.className = 'card';
+    wrap.dataset.gap = c.gap;
+    wrap.dataset.search = searchText;
+    wrap.innerHTML =
+      '<div class="card-head">' +
+        '<div class="card-title-wrap">' +
+          '<div class="card-title"></div>' +
+          '<div class="card-questions"></div>' +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:6px;">' + badge + '<span class="chevron">&#9656;</span></div>' +
+      '</div>' + body;
+    wrap.querySelector('.card-title').textContent = c.title;
+    var qWrap = wrap.querySelector('.card-questions');
+    var qLabel = document.createElement('div');
+    qLabel.className = 'q-label';
+    qLabel.textContent = 'Questions this answers';
+    qWrap.appendChild(qLabel);
+    var qTags = document.createElement('div');
+    qTags.className = 'q-tags';
+    c.questions.split('·').map(function(s){ return s.trim(); }).filter(Boolean).forEach(function(q){
+      var tag = document.createElement('span');
+      tag.className = 'q-tag';
+      tag.textContent = q;
+      qTags.appendChild(tag);
+    });
+    qWrap.appendChild(qTags);
+    wrap.querySelector('.card-head').addEventListener('click', function(){ wrap.classList.toggle('open'); });
+    return wrap;
+  });
+}
+
+function fieldBlock(list){
+  return list.map(function(c){
+    var badge = c.gap ? '<span class="badge gap">GAP</span>' : '<span class="badge built">BUILT</span>';
+    var fields = c.fields.map(function(f){
+      var label = f[0], val = f[1];
+      var tbd = (val && val.trim().toUpperCase().indexOf('TBD') === 0) ? 'tbd' : '';
+      var fdiv = document.createElement('div');
+      fdiv.className = 'field';
+      var l = document.createElement('div'); l.className='star-label'; l.textContent = label.toUpperCase();
+      var v = document.createElement('div'); v.className='field-text ' + tbd; v.textContent = val;
+      fdiv.appendChild(l); fdiv.appendChild(v);
+      return fdiv.outerHTML;
+    }).join('');
+    var searchText = (c.title + ' ' + c.fields.map(function(f){return f[1];}).join(' ')).toLowerCase();
+    var wrap = document.createElement('div');
+    wrap.className = 'card';
+    wrap.dataset.gap = c.gap;
+    wrap.dataset.search = searchText;
+    wrap.innerHTML =
+      '<div class="card-head">' +
+        '<div class="card-title-wrap"><div class="card-title"></div></div>' +
+        '<div style="display:flex;align-items:center;gap:6px;">' + badge + '<span class="chevron">&#9656;</span></div>' +
+      '</div>' +
+      '<div class="card-body"><div class="card-body-inner"><div class="field-grid">' + fields + '</div></div></div>';
+    wrap.querySelector('.card-title').textContent = c.title;
+    wrap.querySelector('.card-head').addEventListener('click', function(){ wrap.classList.toggle('open'); });
+    return wrap;
+  });
+}
+
+function conceptBlock(list){
+  return list.map(function(c){
+    var searchText = (c.title + ' ' + stripTags(c.body)).toLowerCase();
+    var wrap = document.createElement('div');
+    wrap.className = 'card';
+    wrap.dataset.gap = 'false';
+    wrap.dataset.search = searchText;
+    wrap.innerHTML =
+      '<div class="card-head">' +
+        '<div class="card-title-wrap"><div class="card-title"></div></div>' +
+        '<div style="display:flex;align-items:center;gap:6px;"><span class="badge ref">REFERENCE</span><span class="chevron">&#9656;</span></div>' +
+      '</div>' +
+      '<div class="card-body"><div class="card-body-inner"><div class="concept-body">' + c.body + '</div></div></div>';
+    wrap.querySelector('.card-title').textContent = c.title;
+    wrap.querySelector('.card-head').addEventListener('click', function(){ wrap.classList.toggle('open'); });
+    return wrap;
+  });
+}
+
+function mount(containerId, nodes){
+  var container = document.getElementById(containerId);
+  nodes.forEach(function(n){ container.appendChild(n); });
+}
+
+mount('list-behavioral', starBlock(DATA.behavioral));
+mount('list-models', fieldBlock(DATA.models));
+mount('list-exploratory', fieldBlock(DATA.exploratory));
+mount('list-experimentation', fieldBlock(DATA.experimentation));
+mount('list-concepts', conceptBlock(DATA.concepts));
+mount('list-qindex', fieldBlock(DATA.qindex));
+
+['behavioral','models','exploratory','experimentation','concepts','qindex'].forEach(function(k){
+  document.getElementById('count-'+k).textContent = DATA[k].length;
+});
+
+document.querySelectorAll('.tab-btn').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+  });
+});
+
+document.getElementById('search').addEventListener('input', function(e){
+  var q = e.target.value.toLowerCase();
+  document.querySelectorAll('.card').forEach(function(card){
+    card.style.display = card.dataset.search.indexOf(q) !== -1 ? '' : 'none';
+  });
+});
+
+var gapOnly = false;
+document.getElementById('gapFilter').addEventListener('click', function(){
+  gapOnly = !gapOnly;
+  this.classList.toggle('active', gapOnly);
+  this.textContent = gapOnly ? 'Showing gaps only' : 'Show gaps only';
+  document.querySelectorAll('.card').forEach(function(card){
+    if(!gapOnly){ card.style.display=''; return; }
+    card.style.display = card.dataset.gap === 'true' ? '' : 'none';
+  });
+});
+
+var allOpen = false;
+document.getElementById('expandAll').addEventListener('click', function(){
+  allOpen = !allOpen;
+  this.textContent = allOpen ? 'Collapse all' : 'Expand all';
+  document.querySelectorAll('.card').forEach(function(card){
+    card.classList.toggle('open', allOpen);
+  });
+});
+</script>
+</body>
+</html>
